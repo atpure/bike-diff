@@ -1,0 +1,289 @@
+diff --git a/docs/specifications.md b/docs/specifications.md
+index 2b98ef6..3c42d72 100644
+--- a/docs/specifications.md
++++ b/docs/specifications.md
+@@ -275,5 +275,11 @@ When creating unmatched documents, the system attempts to resolve a `bdr_bikeId`
+ - **Synchronous Gesture Triggering**:
+   - `loginWithGoogle` triggers `signInWithRedirect(auth, googleProvider)` synchronously within the event loop frame of user touch/click events, ensuring mobile Safari recognizes the redirect as a direct user-initiated gesture.
+ 
+-
+-
++## 19. Consistency Check & Recalculation Sync Policy
++- **Daily Activity Consistency Check (`dailyActivityConsistencyCheck`)**:
++  - Automatically runs once daily via Cloud Scheduler cron (`0 4 * * *`, 4 AM UTC).
++  - Performs consistency validation for all active users using the Intervals.icu API as the source of truth, auditing activity counts and component distance accumulation.
++- **Manual Component Recalculation ("RUN SYNC" button)**:
++  - Located on `MyBikes.jsx` for master administrators.
++  - Invokes `recalculateAllUsersPartDistances` to recalculate component distance totals across all users based on `initialDistance + sum of checked activity distances`.
++  - Manual consistency check (`runManualConsistencyCheck`) remains available as a Cloud Function endpoint for manual admin diagnostics.
+diff --git a/firestore.rules b/firestore.rules
+index 879ff21..c9dcc3f 100644
+--- a/firestore.rules
++++ b/firestore.rules
+@@ -3,7 +3,11 @@ service cloud.firestore {
+   match /databases/{database}/documents {
+     // Helper function to check if user is admin
+     function isAdmin() {
+-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
++      return request.auth != null && (
++        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
++         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true) ||
++        (request.auth.token.email != null && request.auth.token.email in ['atpure100@gmail.com', 'bikecodelab@gmail.com'])
++      );
+     }
+ 
+     // Helper function to check if user is the owner
+@@ -12,8 +16,24 @@ service cloud.firestore {
+     }
+ 
+     match /users/{userId} {
+-      // Users can read and write their own profile
+-      allow read, write: if isOwner(userId) || isAdmin();
++      // Users can read their own profile or admin can read any profile
++      allow read: if isOwner(userId) || isAdmin();
++      
++      // Users can create their own profile, but cannot self-grant isAdmin or isApproved unless in admin email list
++      allow create: if isOwner(userId) && (
++        isAdmin() || (
++          (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false) &&
++          (!('isApproved' in request.resource.data) || request.resource.data.isApproved == false)
++        )
++      );
++
++      // Users can update their profile, but non-admins cannot modify isAdmin or isApproved fields
++      allow update: if isAdmin() || (
++        isOwner(userId) &&
++        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isAdmin', 'isApproved'])
++      );
++
++      allow delete: if isAdmin();
+       
+       // All subcollections (bikes, activities, parts, etc.)
+       match /{allSubcollections=**} {
+diff --git a/functions/index.js b/functions/index.js
+index fc745e5..6f22218 100644
+--- a/functions/index.js
++++ b/functions/index.js
+@@ -252,6 +252,11 @@ exports.stravaWebhook = functions.region('asia-northeast3').https.onRequest(asyn
+ 
+   if (req.method === 'POST') {
+     const data = req.body;
++    if (!data || typeof data !== 'object' || !data.object_type || !data.aspect_type || !data.owner_id || !data.object_id) {
++      console.warn('[StravaWebhook] Rejected malformed or unauthorized webhook payload');
++      return res.status(400).send('Bad Request: Invalid Payload');
++    }
++
+     // Respond to Strava immediately to prevent retries (within 2s limit)
+     try {
+       await db.collection('pending_webhooks').add({
+@@ -2072,9 +2077,14 @@ exports.requestAccess = functions.region('asia-northeast3').https.onCall(async (
+   const userEmail = context.auth.token.email;
+   const userName = context.auth.token.name || 'Unknown User';
+ 
++  const escapeHtml = (str) => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
++  const safeUserName = escapeHtml(userName);
++  const safeUserEmail = escapeHtml(userEmail);
++
+   try {
+     const userRef = db.collection('users').doc(userId);
+-    const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
++    const crypto = require('crypto');
++    const token = crypto.randomBytes(16).toString('hex');
+ 
+     // Use set with merge: true to ensure the user document exists
+     await userRef.set({
+@@ -2096,8 +2106,8 @@ exports.requestAccess = functions.region('asia-northeast3').https.onCall(async (
+     const approvalLink = `https://asia-northeast3-bike-cb5c9.cloudfunctions.net/approveUser?uid=${userId}&token=${token}`;
+ 
+     let message = `<b>🔔 [BikeDoctor] New Access Request</b>\n\n`;
+-    message += `Name: <b>${userName}</b>\n`;
+-    message += `Email: ${userEmail}\n\n`;
++    message += `Name: <b>${safeUserName}</b>\n`;
++    message += `Email: ${safeUserEmail}\n\n`;
+     message += `Click the link below to approve this user:\n`;
+     message += `<a href="${approvalLink}">✅ Approve Access</a>`;
+ 
+@@ -2915,6 +2925,44 @@ async function getValidIntervalsToken(userId) {
+   if (!userData.intervalsAccessToken) {
+     throw new Error('Intervals.icu connection is missing');
+   }
++
++  // Check if OAuth token is expired and refresh token is available
++  if (userData.intervalsRefreshToken && userData.intervalsTokenExpiresAt) {
++    const expiresAt = new Date(userData.intervalsTokenExpiresAt).getTime();
++    if (Date.now() >= expiresAt - 300000) { // Expired or expiring within 5 minutes
++      try {
++        console.log(`[IntervalsToken] Refreshing expired token for user ${userId}...`);
++        const clientId = process.env.INTERVALS_CLIENT_ID;
++        const clientSecret = process.env.INTERVALS_CLIENT_SECRET;
++        if (clientId && clientSecret) {
++          const res = await axios.post('https://intervals.icu/api/oauth/token', {
++            client_id: clientId,
++            client_secret: clientSecret,
++            grant_type: 'refresh_token',
++            refresh_token: userData.intervalsRefreshToken
++          }, { timeout: 8000 });
++
++          if (res.data?.access_token) {
++            const newAccess = res.data.access_token;
++            const newRefresh = res.data.refresh_token || userData.intervalsRefreshToken;
++            const expiresIn = res.data.expires_in || 2592000; // default 30 days
++            const newExpiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
++
++            await userRef.update({
++              intervalsAccessToken: newAccess,
++              intervalsRefreshToken: newRefresh,
++              intervalsTokenExpiresAt: newExpiresAt,
++              updatedAt: new Date().toISOString()
++            });
++            return newAccess;
++          }
++        }
++      } catch (refreshErr) {
++        console.error(`[IntervalsToken] Token refresh failed for user ${userId}:`, refreshErr.message);
++      }
++    }
++  }
++
+   return userData.intervalsAccessToken;
+ }
+ 
+@@ -3032,7 +3080,7 @@ async function processNewIntervalsActivity(userId, athleteId, activityId, isMoni
+       const existingData = existingDoc.data();
+       const oldGearId = existingData.gear?.id ? String(existingData.gear.id) : null;
+       const oldBikeId = existingData.bdr_bikeId || null;
+-      const dist = Number(existingData.bdr_distance || existingData.distance || 0);
++      const dist = Number(act.icu_distance || act.distance || existingData.bdr_distance || existingData.distance || 0);
+       const isVirtual = (existingData.type || '').toLowerCase().includes('virtual');
+ 
+       // Resolve current bike info from existing data (update path)
+@@ -3966,7 +4014,7 @@ exports.intervalsWebhook = functions.region('asia-northeast3').https.onRequest(a
+ 
+     if (expectedSecret) {
+       const incomingSecret = data.secret || req.headers['x-intervals-secret'] || req.query.secret;
+-      if (incomingSecret && incomingSecret !== expectedSecret) {
++      if (!incomingSecret || incomingSecret !== expectedSecret) {
+         console.warn('[IntervalsWebhook] Unauthorized webhook attempt - Invalid secret');
+         return res.status(401).send('Unauthorized: Invalid Secret');
+       }
+@@ -4232,6 +4280,13 @@ async function importIntervalsHistoryInternal(data, context) {
+       // 1. Filtering: If specific bike selected, skip non-matching gear
+       if (gearIdToMatch && gearId !== gearIdToMatch) continue;
+ 
++      const intervalsActIdStr = String(act.id);
++      const existingQuery = await userRef.collection('activities')
++        .where('bdr_intervalsActivityId', '==', intervalsActIdStr)
++        .limit(1)
++        .get();
++      if (!existingQuery.empty) continue; // Skip already imported/synced activity
++
+       const actRef = userRef.collection('activities').doc(`intervals_${act.id}`);
+       const actSnap = await actRef.get();
+       if (actSnap.exists) continue; // Skip already imported
+@@ -5060,6 +5115,19 @@ exports.fetchAndStoreRawCompareData = functions.region('asia-northeast3').runWit
+   const { url, rawContent: directContent, type } = data;
+   if (!url && !directContent) throw new functions.https.HttpsError('invalid-argument', 'Missing url, rawContent or type');
+ 
++  if (url) {
++    try {
++      const parsedUrl = new URL(url);
++      const allowedHosts = ['intervals.icu', 'strava.com', 'garmin.com', 'google.com', 'googleapis.com', 'firebaseapp.com'];
++      const isAllowed = allowedHosts.some(h => parsedUrl.hostname === h || parsedUrl.hostname.endsWith('.' + h));
++      if (!isAllowed) {
++        throw new Error('Host not allowed');
++      }
++    } catch (urlErr) {
++      throw new functions.https.HttpsError('invalid-argument', 'Invalid or untrusted URL host');
++    }
++  }
++
+   const userId = context.auth.uid;
+   const fs = require('fs');
+   const path = require('path');
+@@ -5912,8 +5980,8 @@ exports.migrateActivityDatesToLocal = functions
+   .region('asia-northeast3')
+   .runWith({ timeoutSeconds: 540, memory: '512MB' })
+   .https.onRequest(async (req, res) => {
+-    const ADMIN_KEY = process.env.MIGRATION_ADMIN_KEY || 'bikedoctor-migrate-2026';
+-    if (req.query.adminKey !== ADMIN_KEY) {
++    const ADMIN_KEY = process.env.MIGRATION_ADMIN_KEY;
++    if (!ADMIN_KEY || req.query.adminKey !== ADMIN_KEY) {
+       return res.status(403).send('Forbidden');
+     }
+ 
+@@ -6008,8 +6076,8 @@ exports.migrateRawActivities = functions
+   .region('asia-northeast3')
+   .runWith({ timeoutSeconds: 540, memory: '1GB' })
+   .https.onRequest(async (req, res) => {
+-    const ADMIN_KEY = process.env.MIGRATION_ADMIN_KEY || 'bikedoctor-migrate-2026';
+-    if (req.query.adminKey !== ADMIN_KEY) {
++    const ADMIN_KEY = process.env.MIGRATION_ADMIN_KEY;
++    if (!ADMIN_KEY || req.query.adminKey !== ADMIN_KEY) {
+       return res.status(403).send('Forbidden');
+     }
+ 
+@@ -6226,8 +6294,8 @@ exports.migrateActivityTimestamps = functions
+   .region('asia-northeast3')
+   .runWith({ timeoutSeconds: 540, memory: '1GB' })
+   .https.onRequest(async (req, res) => {
+-    const ADMIN_KEY = process.env.MIGRATION_ADMIN_KEY || 'bikedoctor-migrate-2026';
+-    if (req.query.adminKey !== ADMIN_KEY) {
++    const ADMIN_KEY = process.env.MIGRATION_ADMIN_KEY;
++    if (!ADMIN_KEY || req.query.adminKey !== ADMIN_KEY) {
+       return res.status(403).send('Forbidden');
+     }
+ 
+diff --git a/src/contexts/BikeContext.jsx b/src/contexts/BikeContext.jsx
+index e029cea..60a4f03 100644
+--- a/src/contexts/BikeContext.jsx
++++ b/src/contexts/BikeContext.jsx
+@@ -175,7 +175,24 @@ export function BikeProvider({ children }) {
+       }
+       
+       for (const docSnap of activitiesSnap.docs) {
+-        await deleteDocInBatch(docSnap.ref);
++        const data = docSnap.data();
++        const hasRawData = !!(data.bdr_stravaRawFilePayload || data.bdr_garminRawFilePayload || data.stravaRawInfo);
++        if (hasRawData) {
++          batch.update(docSnap.ref, {
++            bdr_bikeId: null,
++            bdr_bikeName: null,
++            bdr_lastMatchedBike: null,
++            bdr_updatedAt: new Date().toISOString()
++          });
++          count++;
++          if (count >= 200) {
++            await batch.commit();
++            batch = writeBatch(db);
++            count = 0;
++          }
++        } else {
++          await deleteDocInBatch(docSnap.ref);
++        }
+       }
+       
+       const bikeRef = doc(db, 'users', uid, 'bikes', bikeId);
+diff --git a/storage.rules b/storage.rules
+index 2c2d3b2..2c42369 100644
+--- a/storage.rules
++++ b/storage.rules
+@@ -1,10 +1,18 @@
+ rules_version = '2';
+ service firebase.storage {
+   match /b/{bucket}/o {
++    function isAdmin() {
++      return request.auth != null && (
++        (firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
++         firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin == true) ||
++        (request.auth.token.email != null && request.auth.token.email in ['atpure100@gmail.com', 'bikecodelab@gmail.com'])
++      );
++    }
++
+     // Allow public read only for the specific BikeDoctor_Activity_Extractor.exe file
+     match /BikeDoctor_Activity_Extractor.exe {
+       allow read: if true;
+-      allow write: if request.auth != null; // Only authenticated users (admins) can overwrite
++      allow write: if isAdmin(); // Only authenticated admins can overwrite
+     }
+     
+     // Default rule: block everything else for security
