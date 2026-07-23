@@ -1,0 +1,470 @@
+diff --git a/functions/index.js b/functions/index.js
+index 5b6f1c5..aef98c2 100644
+--- a/functions/index.js
++++ b/functions/index.js
+@@ -1319,16 +1319,12 @@ function haversineDistance(lat1, lng1, lat2, lng2) {
+ }
+ 
+ /**
+- * Determines if a new activity is a commute (commuting to/from work) based on GPS start/end proximity.
+- * A = commute start, B = commute end, C = new activity start, D = new activity end.
+- * COMMUTE_THRESHOLD_M: 500m
+- * Returns true if:
+- *   - dist(A,C) < 500m AND dist(B,D) < 500m  (going-to-work direction)
+- *   - dist(A,D) < 500m AND dist(B,C) < 500m  (returning-home direction)
+- *
+- * NOTE: commuteActivity is stored in Firestore with bdr_ prefixed coordinate fields.
++ * Determines commute direction based on GPS start/end proximity:
++ *   - 'work': going to work (Home->Start < 500m AND Work->End < 500m) => 출근 라이딩
++ *   - 'home': returning home (Work->Start < 500m AND Home->End < 500m) => 퇴근 라이딩
++ *   - null: not a commute
+  */
+-function isCommuteActivity(startLat, startLng, endLat, endLng, commute) {
++function getCommuteType(startLat, startLng, endLat, endLng, commute) {
+   const THRESHOLD = 500; // meters
+   // Support both bdr_ prefixed fields (Firestore storage) and legacy plain fields
+   const cStartLat = commute?.bdr_startLatitude ?? commute?.startLat ?? null;
+@@ -1338,23 +1334,34 @@ function isCommuteActivity(startLat, startLng, endLat, endLng, commute) {
+ 
+   if (!commute || cStartLat == null || cStartLng == null ||
+       cEndLat == null || cEndLng == null) {
+-    return false;
++    return null;
+   }
+   if (startLat == null || startLng == null || endLat == null || endLng == null) {
+-    return false;
++    return null;
+   }
+-  const A = { lat: cStartLat, lng: cStartLng };
+-  const B = { lat: cEndLat,   lng: cEndLng   };
+-  const C = { lat: startLat, lng: startLng };
+-  const D = { lat: endLat,   lng: endLng   };
++  const A = { lat: cStartLat, lng: cStartLng }; // Registered Home start
++  const B = { lat: cEndLat,   lng: cEndLng   }; // Registered Work end
++  const C = { lat: startLat,  lng: startLng  }; // Activity start
++  const D = { lat: endLat,    lng: endLng    }; // Activity end
+ 
+-  // Forward direction (A→C, B→D)
++  // Forward direction (Home→C, Work→D) => 출근
+   const forward = haversineDistance(A.lat, A.lng, C.lat, C.lng) < THRESHOLD &&
+                   haversineDistance(B.lat, B.lng, D.lat, D.lng) < THRESHOLD;
+-  // Reverse direction (A→D, B→C)
+-  const reverse = haversineDistance(A.lat, A.lng, D.lat, D.lng) < THRESHOLD &&
+-                  haversineDistance(B.lat, B.lng, C.lat, C.lng) < THRESHOLD;
+-  return forward || reverse;
++  if (forward) return 'work';
++
++  // Reverse direction (Work→C, Home→D) => 퇴근
++  const reverse = haversineDistance(B.lat, B.lng, C.lat, C.lng) < THRESHOLD &&
++                  haversineDistance(A.lat, A.lng, D.lat, D.lng) < THRESHOLD;
++  if (reverse) return 'home';
++
++  return null;
++}
++
++/**
++ * Determines if a new activity is a commute (commuting to/from work) based on GPS start/end proximity.
++ */
++function isCommuteActivity(startLat, startLng, endLat, endLng, commute) {
++  return getCommuteType(startLat, startLng, endLat, endLng, commute) !== null;
+ }
+ 
+ /**
+@@ -2264,12 +2271,12 @@ async function importStravaHistoryInternal(data, context) {
+       const statsRes = await axios.get(`https://www.strava.com/api/v3/athletes/${athleteId}/stats`, {
+         headers: { Authorization: `Bearer ${accessToken}` }
+       });
+-      // Prioritize ride totals count (e.g., 901) for bike activities
++      // Sum all activity types (ride + run + swim) for overall scan target estimate
+       const rideCount = statsRes.data.all_ride_totals?.count || 0;
+       const runCount = statsRes.data.all_run_totals?.count || 0;
+       const swimCount = statsRes.data.all_swim_totals?.count || 0;
+-      totalStravaActivities = rideCount > 0 ? rideCount : (rideCount + runCount + swimCount);
+-      console.log(`[StravaImport] Total Strava ride count: ${rideCount}, Total overall: ${rideCount + runCount + swimCount}`);
++      totalStravaActivities = rideCount + runCount + swimCount;
++      console.log(`[StravaImport] Total Strava activities stats (all types): ${totalStravaActivities}`);
+     }
+   } catch (statsErr) {
+     console.error('[StravaImport] Failed to fetch athlete stats:', statsErr.message);
+@@ -2318,20 +2325,27 @@ async function importStravaHistoryInternal(data, context) {
+     total: totalStravaActivities || 0,
+     updatedAt: new Date().toISOString()
+   };
+-  await userRef.update({ importStatus: initialStatusObj });
+-  if (bikeRef) await bikeRef.update({ syncStatus: initialStatusObj });
+-
+-  let page = 1;
+-  let totalProcessed = 0;
+-  let totalImported = 0;
+-  let hasMore = true;
+-
+-  // Convert dates to Strava timestamps
+-  const after = startDate ? Math.floor(new Date(`${startDate}T00:00:01Z`).getTime() / 1000) : null;
+-  const before = endDate ? Math.floor(new Date(`${endDate}T23:59:59Z`).getTime() / 1000) : null;
++  await userRef.update({ importCancelled: false });
+ 
+   while (hasMore) {
+     try {
++      // Check if user requested cancellation
++      const cancelCheckSnap = await userRef.get();
++      if (cancelCheckSnap.exists && cancelCheckSnap.data()?.importCancelled) {
++        console.log(`[StravaImport] User requested cancellation at page ${page}. Terminating import.`);
++        const cancelledStatus = {
++          status: 'cancelled',
++          page,
++          processed: totalProcessed,
++          count: totalImported,
++          total: Math.max(totalStravaActivities, totalProcessed),
++          updatedAt: new Date().toISOString()
++        };
++        await userRef.update({ importStatus: cancelledStatus });
++        if (bikeRef) await bikeRef.update({ syncStatus: cancelledStatus });
++        return { success: false, cancelled: true, count: totalImported };
++      }
++
+       const params = { page, per_page: 50 }; // Reduced from 200 to 50 for better timeout handling
+       if (after) params.after = after;
+       if (before) params.before = before;
+@@ -2462,7 +2476,7 @@ async function importStravaHistoryInternal(data, context) {
+             page,
+             processed: totalProcessed,
+             count: totalImported,
+-            total: totalStravaActivities, // Add total count for accurate progress
++            total: Math.max(totalStravaActivities, totalProcessed),
+             updatedAt: new Date().toISOString()
+           };
+           await userRef.update({ importStatus: statusObj });
+@@ -2481,7 +2495,7 @@ async function importStravaHistoryInternal(data, context) {
+         page,
+         processed: totalProcessed,
+         count: totalImported,
+-        total: totalStravaActivities, // Add total count for accurate progress
++        total: Math.max(totalStravaActivities, totalProcessed),
+         updatedAt: new Date().toISOString()
+       };
+       await userRef.update({ importStatus: statusObj });
+@@ -2501,7 +2515,7 @@ async function importStravaHistoryInternal(data, context) {
+     page: page - 1,
+     processed: totalProcessed,
+     count: totalImported,
+-    total: totalStravaActivities, // Add total count for accurate progress
++    total: Math.max(totalStravaActivities, totalProcessed),
+     updatedAt: new Date().toISOString()
+   };
+   await userRef.update({ importStatus: finalStatus });
+@@ -3087,7 +3101,7 @@ async function processNewIntervalsActivity(userId, athleteId, activityId, isMoni
+       let needsIntervalsPut = false;
+       if (userData.syncIntervalsNameChanges && act.strava_id && isDefaultCyclingName(newName)) {
+         try {
+-          const resolvedName = await autoRenameIntervalsActivityIfCycling(userId, activityId, act, startLat, startLng);
++          const resolvedName = await autoRenameIntervalsActivityIfCycling(userId, activityId, act, startLat, startLng, endLat, endLng);
+           if (resolvedName) {
+             newName = resolvedName;
+             act.name = resolvedName;
+@@ -3419,7 +3433,7 @@ async function processNewIntervalsActivity(userId, athleteId, activityId, isMoni
+     const autoRenameUserData = autoRenameUserSnap.exists ? autoRenameUserSnap.data() : {};
+     if (autoRenameUserData.syncIntervalsNameChanges && act.strava_id && isDefaultCyclingName(act.name)) {
+       try {
+-        const resolvedName = await autoRenameIntervalsActivityIfCycling(userId, activityId, act, startLat, startLng);
++        const resolvedName = await autoRenameIntervalsActivityIfCycling(userId, activityId, act, startLat, startLng, endLat, endLng);
+         if (resolvedName) {
+           act.name = resolvedName;
+           needsIntervalsPut = true;
+@@ -4251,11 +4265,14 @@ async function importIntervalsHistoryInternal(data, context) {
+   let totalProcessed = 0;
+   let totalImported = 0;
+ 
++  await userRef.update({ importCancelled: false });
++
+   // Initialize progress status in Firestore
+   const initialStatus = {
+     status: 'syncing',
+     processed: 0,
+     count: 0,
++    total: 0,
+     updatedAt: new Date().toISOString()
+   };
+   if (bikeRef) {
+@@ -4295,6 +4312,22 @@ async function importIntervalsHistoryInternal(data, context) {
+     let operationCount = 0;
+ 
+     for (const act of activities) {
++      if (totalProcessed % 10 === 0) {
++        const cancelCheckSnap = await userRef.get();
++        if (cancelCheckSnap.exists && cancelCheckSnap.data()?.importCancelled) {
++          console.log(`[IntervalsImport] User requested cancellation. Terminating import.`);
++          const cancelledStatus = {
++            status: 'cancelled',
++            processed: totalProcessed,
++            count: totalImported,
++            total: activities.length,
++            updatedAt: new Date().toISOString()
++          };
++          if (bikeRef) await bikeRef.update({ syncStatus: cancelledStatus });
++          else await userRef.update({ importStatus: cancelledStatus });
++          return { success: false, cancelled: true, count: totalImported };
++        }
++      }
+       totalProcessed++;
+ 
+       // Intervals.icu activity gear info is under gear.id
+@@ -5911,44 +5944,70 @@ function isDefaultCyclingName(name) {
+  *   - If the activity starts within 1,000 m of the home origin, the region prefix is skipped.
+  * This can be easily deleted in the future if this feature is removed.
+  */
+-async function autoRenameIntervalsActivityIfCycling(userId, intervalsId, act, startLat = null, startLng = null) {
++async function autoRenameIntervalsActivityIfCycling(userId, intervalsId, act, startLat = null, startLng = null, endLat = null, endLng = null) {
+   console.log(`[AutoRename] Checking default name sync for activity intervals_${intervalsId}...`);
+   const dateStr = act.start_date_local || act.start_date || new Date().toISOString();
+   const timeLabel = getTimeOfDayLabel(dateStr);
+-  let resolvedRegion = null;
+ 
+-  if (startLat !== null && startLng !== null) {
++  // 1. Fetch user profile options
++  let markCommuteActivities = false;
++  let appendLocationName = false;
++
++  try {
++    const userSnap = await db.collection('users').doc(userId).get();
++    if (userSnap.exists) {
++      const uData = userSnap.data();
++      markCommuteActivities = !!uData?.markCommuteActivities;
++      appendLocationName = !!uData?.appendLocationName;
++    }
++  } catch (userErr) {
++    console.warn('[AutoRename] Failed to read user profile settings:', userErr.message);
++  }
++
++  // 2. Fetch commuteActivity configuration (home & work coordinates)
++  let commuteActivity = null;
++  try {
++    const telegramSnap = await db.collection('users').doc(userId)
++      .collection('settings').doc('telegram').get();
++    if (telegramSnap.exists) {
++      commuteActivity = telegramSnap.data()?.commuteActivity || null;
++    }
++  } catch (homeCheckErr) {
++    console.warn('[AutoRename] Failed to fetch commuteActivity settings:', homeCheckErr.message);
++  }
++
++  // ── Step 1: Check Commute Condition (출근 / 퇴근) ──────────────────────────────
++  if (markCommuteActivities && commuteActivity && startLat !== null && startLng !== null && endLat !== null && endLng !== null) {
++    const commuteType = getCommuteType(startLat, startLng, endLat, endLng, commuteActivity);
++    if (commuteType === 'work') {
++      console.log(`[AutoRename] Activity intervals_${intervalsId} identified as Ride to Work (출근 라이딩).`);
++      return '출근 라이딩';
++    } else if (commuteType === 'home') {
++      console.log(`[AutoRename] Activity intervals_${intervalsId} identified as Ride Home (퇴근 라이딩).`);
++      return '퇴근 라이딩';
++    }
++  }
++
++  // ── Step 2: Check Away From Home / Prefix Area Condition ─────────────────────
++  let resolvedRegion = null;
++  if (appendLocationName && startLat !== null && startLng !== null) {
+     try {
+-      // ── "away from home" check ───────────────────────────────────────────────
+-      // Only prefix region name when the ride starts more than 1 km from home.
+       const HOME_RADIUS_M = 1000;
+-      let isAwayFromHome = true; // default: prefix region if no home coords set
+-
+-      try {
+-        const telegramSnap = await db.collection('users').doc(userId)
+-          .collection('settings').doc('telegram').get();
+-        if (telegramSnap.exists) {
+-          const commuteActivity = telegramSnap.data()?.commuteActivity;
+-          // Support bdr_ prefixed fields (primary storage) with plain-field fallback
+-          const homeLat = commuteActivity?.bdr_startLatitude ?? commuteActivity?.startLat ?? null;
+-          const homeLng = commuteActivity?.bdr_startLongitude ?? commuteActivity?.startLng ?? null;
+-          if (homeLat != null && homeLng != null) {
+-            const distFromHome = haversineDistance(homeLat, homeLng, startLat, startLng);
+-            isAwayFromHome = distFromHome > HOME_RADIUS_M;
+-            console.log(`[AutoRename] Distance from home: ${Math.round(distFromHome)}m — isAwayFromHome: ${isAwayFromHome}`);
+-          } else {
+-            console.log('[AutoRename] No home coords in commuteActivity — treating as away from home.');
+-          }
+-        }
+-      } catch (homeCheckErr) {
+-        console.warn('[AutoRename] Home-distance check failed, defaulting to away-from-home:', homeCheckErr.message);
++      let isAwayFromHome = true;
++
++      const homeLat = commuteActivity?.bdr_startLatitude ?? commuteActivity?.startLat ?? null;
++      const homeLng = commuteActivity?.bdr_startLongitude ?? commuteActivity?.startLng ?? null;
++      if (homeLat != null && homeLng != null) {
++        const distFromHome = haversineDistance(homeLat, homeLng, startLat, startLng);
++        isAwayFromHome = distFromHome > HOME_RADIUS_M;
++        console.log(`[AutoRename] Distance from home: ${Math.round(distFromHome)}m — isAwayFromHome: ${isAwayFromHome}`);
++      } else {
++        console.log('[AutoRename] No home coords in commuteActivity — treating as away from home.');
+       }
+-      // ── end home check ────────────────────────────────────────────────────────
+ 
+       if (isAwayFromHome) {
+         console.log(`[AutoRename] Using coordinates: lat=${startLat}, lng=${startLng}. Calling reverse geocoder...`);
+ 
+-        // Reverse geocoding via OpenStreetMap Nominatim API
+         const geoUrl = `https://nominatim.openstreetmap.org/reverse`;
+         const geoRes = await axios.get(geoUrl, {
+           headers: { 'User-Agent': 'BikeDoctor/1.0' },
+@@ -5980,13 +6039,11 @@ async function autoRenameIntervalsActivityIfCycling(userId, intervalsId, act, st
+     } catch (err) {
+       console.error(`[AutoRename] Geocoding lookup failed for activity ${intervalsId}:`, err.message);
+     }
+-  } else {
+-    console.log(`[AutoRename] No GPS coordinates found for activity ${intervalsId}. Skipping geocoding.`);
+   }
+ 
+-  // Compose name
++  // ── Step 3: Default Time-of-Day Title ───────────────────────────────────────
+   const newName = resolvedRegion ? `${resolvedRegion} ${timeLabel}` : timeLabel;
+-  console.log(`[AutoRename] Composed title: "${newName}" (Replaces "Cycling")`);
++  console.log(`[AutoRename] Composed title: "${newName}"`);
+ 
+   return newName;
+ }
+diff --git a/src/App.css b/src/App.css
+index 1031b18..60c9ba0 100644
+--- a/src/App.css
++++ b/src/App.css
+@@ -287,7 +287,7 @@
+   z-index: 12;
+   opacity: 0.8;
+   transition: all 0.2s ease;
+-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
++  box-shadow: none;
+ }
+ 
+ .insert-btn:hover {
+@@ -862,7 +862,7 @@ body.modal-open .page-content-wrapper {
+   /* Slightly darker on hover */
+   transform: translateY(-1px);
+   /* Premium lift effect */
+-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
++  box-shadow: none !important;
+ }
+ 
+ 
+@@ -1980,7 +1980,7 @@ input[type=number] {
+   background: #ef4444;
+   color: white;
+   transform: translateY(-2px);
+-  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
++  box-shadow: none !important;
+   border-color: #ef4444;
+ }
+ 
+diff --git a/src/components/modals/modal.css b/src/components/modals/modal.css
+index 35c7f89..2ad5ada 100644
+--- a/src/components/modals/modal.css
++++ b/src/components/modals/modal.css
+@@ -150,5 +150,5 @@
+ 
+ .btn-danger-unified:hover:not(:disabled) {
+   background-color: #dc2626 !important;
+-  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4) !important;
++  box-shadow: none !important;
+ }
+diff --git a/src/index.css b/src/index.css
+index 3f7dc34..2c55261 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -811,7 +811,7 @@ button:disabled {
+   background: rgba(56, 189, 248, 0.2);
+   color: #38bdf8;
+   border-color: rgba(56, 189, 248, 0.4);
+-  box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
++  box-shadow: none;
+ }
+ 
+ .reconcile-badge.active:hover {
+@@ -836,5 +836,5 @@ button:disabled {
+   background: rgba(2, 136, 209, 0.15);
+   color: #0288d1;
+   border-color: rgba(2, 136, 209, 0.3);
+-  box-shadow: 0 0 8px rgba(2, 136, 209, 0.15);
++  box-shadow: none;
+ }
+\ No newline at end of file
+diff --git a/src/pages/Activities.jsx b/src/pages/Activities.jsx
+index ccb8637..9102aa6 100644
+--- a/src/pages/Activities.jsx
++++ b/src/pages/Activities.jsx
+@@ -1032,6 +1032,22 @@ const Activities = () => {
+     }
+   };
+ 
++  const handleStopImport = useCallback(async () => {
++    if (!user?.uid) return;
++    try {
++      await updateDoc(doc(db, 'users', user.uid), {
++        importCancelled: true
++      });
++      if (selectedBikeId) {
++        await updateDoc(doc(db, 'users', user.uid, 'bikes', selectedBikeId), {
++          'syncStatus.status': 'cancelled'
++        });
++      }
++    } catch (err) {
++      console.error('Failed to stop import:', err);
++    }
++  }, [user, selectedBikeId]);
++
+ 
+   const handleDeleteActivity = useCallback(async (activityId) => {
+     console.log('[Delete Debug] Clicked delete for activityId:', activityId);
+@@ -1685,14 +1701,12 @@ const Activities = () => {
+                 <div className="flex items-center gap-3">
+                   <Download className="text-accent" size={22} />
+                   <h2 className="mb-0" style={{ color: '#000000', fontSize: '1.25rem', fontWeight: 'bold' }}>
+-                    {importProgress?.status === 'completed' ? 'Import Complete' : `Import ${serviceName} History`}
++                    {importProgress?.status === 'completed' ? 'Import Complete' : importProgress?.status === 'cancelled' ? 'Import Stopped' : `Import ${serviceName} History`}
+                   </h2>
+                 </div>
+-                {importProgress?.status !== 'syncing' && importProgress?.status !== 'starting' && (
+-                  <button onClick={() => { setShowImportModal(false); setIsImportingHistory(false); setImportProgress(null); }} className="btn-icon-ghost">
+-                    <X size={20} />
+-                  </button>
+-                )}
++                <button onClick={() => { if (importProgress?.status === 'syncing' || importProgress?.status === 'starting') { handleStopImport(); } setShowImportModal(false); setIsImportingHistory(false); setImportProgress(null); }} className="btn-icon-ghost">
++                  <X size={20} />
++                </button>
+               </div>
+ 
+               <div className="modal-body py-2">
+@@ -1708,10 +1722,22 @@ const Activities = () => {
+                   </div>
+                 )}
+ 
++                {/* STEP: cancelled */}
++                {importProgress?.status === 'cancelled' && (
++                  <div className="my-2 text-center space-y-2">
++                    <p className="text-sm font-bold text-white mb-1">Import Stopped</p>
++                    <p className="text-xs text-muted" style={{ lineHeight: '1.6' }}>
++                      Import process was stopped.
++                      <br />
++                      Saved <strong className="text-accent">{importProgress?.count || 0}</strong> new activities from {importProgress?.processed || 0} scanned.
++                    </p>
++                  </div>
++                )}
++
+                 {/* STEP: syncing / starting */}
+                 {(importProgress?.status === 'syncing' || importProgress?.status === 'starting') && (() => {
+-                  const total = importProgress?.total || 0;
+                   const processed = importProgress?.processed || 0;
++                  const total = Math.max(importProgress?.total || 0, processed);
+                   const count = importProgress?.count || 0;
+                   const pct = total > 0 ? Math.min(100, Math.round((processed / total) * 100)) : (processed > 0 ? Math.min(95, processed) : 0);
+                   return (
+diff --git a/src/pages/Reconcile.jsx b/src/pages/Reconcile.jsx
+index b891ac0..e0d57ef 100644
+--- a/src/pages/Reconcile.jsx
++++ b/src/pages/Reconcile.jsx
+@@ -2722,7 +2722,7 @@ const Reconcile = ({ isSubComponent = false }) => {
+                   )}
+                 </div>
+ 
+-                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: '8px', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
++                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: '8px', marginTop: '16px' }}>
+                   <button
+                     onClick={() => setShowProgressModal(false)}
+                     className="btn-ghost"
