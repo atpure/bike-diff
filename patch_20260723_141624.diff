@@ -1,0 +1,26 @@
+diff --git a/functions/index.js b/functions/index.js
+index b395fd4..a9a06f7 100644
+--- a/functions/index.js
++++ b/functions/index.js
+@@ -3574,7 +3574,7 @@ async function processNewIntervalsActivity(userId, athleteId, activityId, isMoni
+           bikeUpdate.name = expectedLocalName;
+ 
+           // Propagate name change to activities
+-          const aSnap = await activitiesRef.where('bikeId', '==', targetBikeId).get();
++          const aSnap = await activitiesRef.where('bdr_bikeId', '==', targetBikeId).get();
+           if (!aSnap.empty) {
+             let actBatch = db.batch();
+             let count = 0;
+diff --git a/src/pages/MyBikes.jsx b/src/pages/MyBikes.jsx
+index ce7cd55..f945100 100644
+--- a/src/pages/MyBikes.jsx
++++ b/src/pages/MyBikes.jsx
+@@ -889,8 +889,6 @@ const MyBikes = () => {
+           // Always generate a random Firestore document ID for cloned activities
+           let newRef = doc(collection(db, 'users', uid, 'activities'));
+ 
+-          // Adjust metadata based on target bike type
+-          let source = isTargetIntervals ? 'intervals_copied' : 'strava_copied';
+           let bdr_intervalsActivityId = null;
+ 
+           // Remap bdr_checkedComponents: old partId → new partId
