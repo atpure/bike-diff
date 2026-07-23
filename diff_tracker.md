@@ -1,14 +1,14 @@
 # BikeDoctor Diff Tracking Record
 
-- **Last Exported Diff File**: `patch_20260723_172500.diff`
-- **Last Exported Commit Hash**: `204e639e3dde9f842465bb763fd58b8a3c15f627`
-- **Exported At**: 2026-07-23 17:25:00 KST
+- **Last Exported Diff File**: `patch_20260723_173600.diff`
+- **Last Exported Commit Hash**: `1bf6fe74fafd07c168379411ef42643e4a54031f`
+- **Exported At**: 2026-07-23 17:36:00 KST
 
 ---
 
 ## Instructions for Future Diff Creation (에이전트 패치 생성 규칙)
 When creating a new diff export:
-1. Read the previous commit hash from this file (`204e639e3dde9f842465bb763fd58b8a3c15f627`).
+1. Read the previous commit hash from this file (`1bf6fe74fafd07c168379411ef42643e4a54031f`).
 2. Run `git diff <PREVIOUS_HASH> HEAD > ../bike-diff/patch_YYYYMMDD_HHMMSS.diff`.
 3. Create an individual markdown file with the exact same basename: `../bike-diff/patch_YYYYMMDD_HHMMSS.md`.
    - Include: Commit Hash, Export Date, User Request (요청 사항), Rationale & Modifications (수정 내용 및 이유).
