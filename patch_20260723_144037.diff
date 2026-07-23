@@ -1,0 +1,31 @@
+diff --git a/functions/index.js b/functions/index.js
+index a9a06f7..f5839a1 100644
+--- a/functions/index.js
++++ b/functions/index.js
+@@ -978,7 +978,7 @@ async function deleteActivityDoc(userId, actDocId, isMonitorActive = false, serv
+   let initialMatchTime = null;
+   const initialDoc = activitiesSnap.docs.find(d => {
+     const data = d.data();
+-    if (targetCategory && data.bdr_serviceCategory && data.bdr_serviceCategory !== targetCategory) return false;
++    if (targetCategory && data.bdr_serviceCategory !== targetCategory) return false;
+ 
+     if (d.id === actDocId || d.id === cleanId || d.id === `${targetCategory}_${cleanId}`) return true;
+     if (targetCategory === 'strava' && data.bdr_stravaActivityId && String(data.bdr_stravaActivityId) === cleanId) return true;
+@@ -999,7 +999,7 @@ async function deleteActivityDoc(userId, actDocId, isMonitorActive = false, serv
+   const matchingDocs = activitiesSnap.docs.filter(d => {
+     const data = d.data();
+     // Must match bdr_serviceCategory
+-    if (targetCategory && data.bdr_serviceCategory && data.bdr_serviceCategory !== targetCategory) {
++    if (targetCategory && data.bdr_serviceCategory !== targetCategory) {
+       return false;
+     }
+ 
+@@ -6273,7 +6273,7 @@ exports.migrateRawActivities = functions
+               bdr_garminRawFilePayload: rawData,
+               bdr_garminActivityId: garminId,
+               bdr_bikeId: targetBikeId,
+-              bdr_serviceCategory: 'garmin',
++              bdr_serviceCategory: 'intervals',
+               updatedAt: new Date().toISOString(),
+               bdr_updatedAt: new Date().toISOString()
+             });
