@@ -1,0 +1,78 @@
+diff --git a/docs/specifications.md b/docs/specifications.md
+index 3c42d72..d697b39 100644
+--- a/docs/specifications.md
++++ b/docs/specifications.md
+@@ -223,9 +223,7 @@ When creating unmatched documents, the system attempts to resolve a `bdr_bikeId`
+ - **Bulk platform delete** (e.g., "Clear STRAVA Data" / "Clear Garmin Data"):
+   - Targets only activities belonging to **Intervals-enabled bikes** (bikes with `intervalsGearId`). Activities belonging to Strava-group-only bikes (e.g., `DeepSeaⓢ`) are left completely untouched.
+   - Matched activities are **never deleted**. Only their respective `bdr_stravaRawFilePayload` or `bdr_garminRawFilePayload` fields are set to `null` to clear raw comparison details, preserving the activity slots and their respective external links (`View on STRAVA` / `View on Garmin`).
+-- **Bike deletion**: Activities linked to a deleted bike follow the same source-based filtering policy:
+-  - If the activity has other platform payloads (Strava/Garmin raw data), `bdr_bikeId` is set to `null` to preserve the comparison data.
+-  - If the activity has no other platform payloads, the document is deleted entirely.
++- **Bike deletion**: Deleting a bike batch deletes all associated components, component history records, and linked activities (`bdr_bikeId == bikeId`) from Firestore.
+ 
+ ## 15. Firestore Offline Persistence & Restricted Proxy Networks
+ - **Memory-only Cache (`memoryLocalCache`)**: 
+diff --git a/functions/index.js b/functions/index.js
+index 6f22218..699fb49 100644
+--- a/functions/index.js
++++ b/functions/index.js
+@@ -3686,7 +3686,7 @@ async function processNewIntervalsActivity(userId, athleteId, activityId, isMoni
+ 
+       if (!trainersSnap.empty) {
+         for (const trainerDoc of trainersSnap.docs) {
+-          const tActRef = db.collection('users').doc(userId).collection('trainer_activities').doc(`intervals_${activityId}`);
++          const tActRef = db.collection('users').doc(userId).collection('trainer_activities').doc(targetDocRef.id);
+ 
+           const trainerChecked = { ...checked };
+           const tCompSnap = await trainerDoc.ref.collection('components').get();
+@@ -4287,9 +4287,7 @@ async function importIntervalsHistoryInternal(data, context) {
+         .get();
+       if (!existingQuery.empty) continue; // Skip already imported/synced activity
+ 
+-      const actRef = userRef.collection('activities').doc(`intervals_${act.id}`);
+-      const actSnap = await actRef.get();
+-      if (actSnap.exists) continue; // Skip already imported
++      const actRef = userRef.collection('activities').doc();
+ 
+       const dist = Number(act.bdr_distance || act.distance || 0);
+       const isVirtual = (act.type || '').toLowerCase().includes('virtual');
+@@ -4356,7 +4354,7 @@ async function importIntervalsHistoryInternal(data, context) {
+       // COPY TO TRAINER ACTIVITIES IF VIRTUAL
+       if (isVirtual && activeTrainersList.length > 0) {
+         for (const trainer of activeTrainersList) {
+-          const tActRef = userRef.collection('trainer_activities').doc(`intervals_${act.id}`);
++          const tActRef = userRef.collection('trainer_activities').doc(actRef.id);
+ 
+           const trainerChecked = { ...checked };
+           trainer.components.forEach(tc => {
+diff --git a/src/contexts/BikeContext.jsx b/src/contexts/BikeContext.jsx
+index 60a4f03..e029cea 100644
+--- a/src/contexts/BikeContext.jsx
++++ b/src/contexts/BikeContext.jsx
+@@ -175,24 +175,7 @@ export function BikeProvider({ children }) {
+       }
+       
+       for (const docSnap of activitiesSnap.docs) {
+-        const data = docSnap.data();
+-        const hasRawData = !!(data.bdr_stravaRawFilePayload || data.bdr_garminRawFilePayload || data.stravaRawInfo);
+-        if (hasRawData) {
+-          batch.update(docSnap.ref, {
+-            bdr_bikeId: null,
+-            bdr_bikeName: null,
+-            bdr_lastMatchedBike: null,
+-            bdr_updatedAt: new Date().toISOString()
+-          });
+-          count++;
+-          if (count >= 200) {
+-            await batch.commit();
+-            batch = writeBatch(db);
+-            count = 0;
+-          }
+-        } else {
+-          await deleteDocInBatch(docSnap.ref);
+-        }
++        await deleteDocInBatch(docSnap.ref);
+       }
+       
+       const bikeRef = doc(db, 'users', uid, 'bikes', bikeId);
