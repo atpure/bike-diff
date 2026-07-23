@@ -1,0 +1,276 @@
+diff --git a/functions/index.js b/functions/index.js
+index 0c923e3..5b6f1c5 100644
+--- a/functions/index.js
++++ b/functions/index.js
+@@ -2248,18 +2248,31 @@ async function importStravaHistoryInternal(data, context) {
+   // 2. Get total Strava activities count from athlete stats
+   let totalStravaActivities = 0;
+   try {
+-    const athleteId = userData.stravaAthleteId || context.auth.uid;
+-    const statsRes = await axios.get(`https://www.strava.com/api/v3/athletes/${athleteId}/stats`, {
+-      headers: { Authorization: `Bearer ${accessToken}` }
+-    });
+-    // Sum up all activities (ride + swim + run)
+-    totalStravaActivities = (statsRes.data.all_ride_totals?.count || 0) +
+-                           (statsRes.data.all_swim_totals?.count || 0) +
+-                           (statsRes.data.all_run_totals?.count || 0);
+-    console.log(`[StravaImport] Total Strava activities from stats (all types): ${totalStravaActivities}`);
++    let athleteId = userData.stravaAthleteId;
++    if (!athleteId || isNaN(Number(athleteId))) {
++      const profileRes = await axios.get('https://www.strava.com/api/v3/athlete', {
++        headers: { Authorization: `Bearer ${accessToken}` }
++      });
++      if (profileRes.data?.id) {
++        athleteId = String(profileRes.data.id);
++        await userRef.update({ stravaAthleteId: athleteId });
++        console.log(`[StravaImport] Updated missing stravaAthleteId: ${athleteId}`);
++      }
++    }
++
++    if (athleteId) {
++      const statsRes = await axios.get(`https://www.strava.com/api/v3/athletes/${athleteId}/stats`, {
++        headers: { Authorization: `Bearer ${accessToken}` }
++      });
++      // Prioritize ride totals count (e.g., 901) for bike activities
++      const rideCount = statsRes.data.all_ride_totals?.count || 0;
++      const runCount = statsRes.data.all_run_totals?.count || 0;
++      const swimCount = statsRes.data.all_swim_totals?.count || 0;
++      totalStravaActivities = rideCount > 0 ? rideCount : (rideCount + runCount + swimCount);
++      console.log(`[StravaImport] Total Strava ride count: ${rideCount}, Total overall: ${rideCount + runCount + swimCount}`);
++    }
+   } catch (statsErr) {
+     console.error('[StravaImport] Failed to fetch athlete stats:', statsErr.message);
+-    // Continue without total count - progress will be estimated
+   }
+ 
+   // 3. Fetch Activities from Strava
+@@ -2297,6 +2310,17 @@ async function importStravaHistoryInternal(data, context) {
+     console.error('[StravaImport] Failed to pre-load existing activity IDs:', err.message);
+   }
+ 
++  const initialStatusObj = {
++    status: 'syncing',
++    page: 1,
++    processed: 0,
++    count: 0,
++    total: totalStravaActivities || 0,
++    updatedAt: new Date().toISOString()
++  };
++  await userRef.update({ importStatus: initialStatusObj });
++  if (bikeRef) await bikeRef.update({ syncStatus: initialStatusObj });
++
+   let page = 1;
+   let totalProcessed = 0;
+   let totalImported = 0;
+diff --git a/scripts/get_strava_count.cjs b/scripts/get_strava_count.cjs
+new file mode 100644
+index 0000000..cc331e8
+--- /dev/null
++++ b/scripts/get_strava_count.cjs
+@@ -0,0 +1,164 @@
++const fs = require('fs');
++const path = require('path');
++
++// Load environment variables manually or via functions/node_modules
++try {
++  require('../functions/node_modules/dotenv').config({ path: '.env.local' });
++  require('../functions/node_modules/dotenv').config({ path: 'functions/.env' });
++} catch (e) {
++  // Fallback manual env parse
++  const envPath = path.join(__dirname, '../functions/.env');
++  if (fs.existsSync(envPath)) {
++    const envLines = fs.readFileSync(envPath, 'utf8').split('\n');
++    envLines.forEach(line => {
++      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
++      if (match) {
++        const key = match[1];
++        let value = match[2] || '';
++        if (value.length > 0 && value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
++        process.env[key] = value;
++      }
++    });
++  }
++}
++
++const admin = require('../functions/node_modules/firebase-admin');
++const axios = require('../functions/node_modules/axios');
++
++if (!admin.apps.length) {
++  admin.initializeApp({ projectId: 'bike-cb5c9' });
++}
++const db = admin.firestore();
++
++async function getValidStravaToken(userId, userData) {
++  if (!userData.stravaRefreshToken) {
++    throw new Error('No stravaRefreshToken found in user document');
++  }
++  let accessToken = userData.stravaAccessToken;
++  const clientId = process.env.VITE_STRAVA_CLIENT_ID || process.env.STRAVA_CLIENT_ID;
++  const clientSecret = process.env.VITE_STRAVA_CLIENT_SECRET || process.env.STRAVA_CLIENT_SECRET;
++
++  if (!accessToken || !userData.stravaTokenExpiresAt || Date.now() / 1000 > (userData.stravaTokenExpiresAt - 300)) {
++    console.log('[TokenRefresh] Refreshing Strava access token via OAuth API...');
++    const refreshRes = await axios.post('https://www.strava.com/oauth/token', {
++      client_id: clientId,
++      client_secret: clientSecret,
++      refresh_token: userData.stravaRefreshToken,
++      grant_type: 'refresh_token'
++    });
++    accessToken = refreshRes.data.access_token;
++    await db.collection('users').doc(userId).update({
++      stravaAccessToken: accessToken,
++      stravaRefreshToken: refreshRes.data.refresh_token,
++      stravaTokenExpiresAt: refreshRes.data.expires_at,
++      updatedAt: new Date().toISOString()
++    });
++    console.log('[TokenRefresh] Token refreshed successfully.');
++  }
++  return accessToken;
++}
++
++async function main() {
++  console.log('====================================================');
++  console.log('   Strava Activity Count Fetching Test Script');
++  console.log('====================================================\n');
++
++  // Find user with Strava connection
++  const usersSnap = await db.collection('users').get();
++  let targetUserDoc = null;
++  for (const doc of usersSnap.docs) {
++    const data = doc.data();
++    if (data.stravaRefreshToken || data.stravaAccessToken) {
++      targetUserDoc = doc;
++      break;
++    }
++  }
++
++  if (!targetUserDoc) {
++    console.error('❌ No user found with Strava credentials in database.');
++    process.exit(1);
++  }
++
++  const userId = targetUserDoc.id;
++  const userData = targetUserDoc.data();
++  console.log(`👤 Target User: ${userData.email || userData.name} (ID: ${userId})`);
++  console.log(`   Stored stravaAthleteId: ${userData.stravaAthleteId || 'NONE'}`);
++
++  let accessToken;
++  try {
++    accessToken = await getValidStravaToken(userId, userData);
++  } catch (err) {
++    console.error('❌ Failed to obtain valid Strava access token:', err.message);
++    process.exit(1);
++  }
++
++  console.log('\n----------------------------------------------------');
++  console.log('METHOD 1: GET /api/v3/athlete (Current Authenticated Athlete Profile)');
++  console.log('----------------------------------------------------');
++  let currentAthleteId = userData.stravaAthleteId;
++  try {
++    const profileRes = await axios.get('https://www.strava.com/api/v3/athlete', {
++      headers: { Authorization: `Bearer ${accessToken}` }
++    });
++    console.log('✅ Success! Current Athlete Profile:');
++    console.log(`   Athlete ID from API: ${profileRes.data.id}`);
++    console.log(`   Name: ${profileRes.data.firstname} ${profileRes.data.lastname}`);
++    console.log(`   Username: ${profileRes.data.username || 'N/A'}`);
++    currentAthleteId = profileRes.data.id;
++  } catch (err) {
++    console.error('❌ Method 1 Failed:', err.response ? err.response.data : err.message);
++  }
++
++  console.log('\n----------------------------------------------------');
++  console.log(`METHOD 2: GET /api/v3/athletes/${currentAthleteId}/stats (Athlete Stats Endpoint)`);
++  console.log('----------------------------------------------------');
++  if (currentAthleteId) {
++    try {
++      const statsRes = await axios.get(`https://www.strava.com/api/v3/athletes/${currentAthleteId}/stats`, {
++        headers: { Authorization: `Bearer ${accessToken}` }
++      });
++      console.log('✅ Success! Athlete Stats Response:');
++      console.log('   all_ride_totals:', JSON.stringify(statsRes.data.all_ride_totals));
++      console.log('   all_run_totals:', JSON.stringify(statsRes.data.all_run_totals));
++      console.log('   all_swim_totals:', JSON.stringify(statsRes.data.all_swim_totals));
++      console.log('   recent_ride_totals:', JSON.stringify(statsRes.data.recent_ride_totals));
++
++      const rideCount = statsRes.data.all_ride_totals?.count || 0;
++      const runCount = statsRes.data.all_run_totals?.count || 0;
++      const swimCount = statsRes.data.all_swim_totals?.count || 0;
++      const totalCount = rideCount + runCount + swimCount;
++
++      console.log('\n📊 Activity Counts Summary:');
++      console.log(`   - Ride Count: ${rideCount}`);
++      console.log(`   - Run Count:  ${runCount}`);
++      console.log(`   - Swim Count: ${swimCount}`);
++      console.log(`   👉 TOTAL COUNT (Ride + Run + Swim): ${totalCount}`);
++    } catch (err) {
++      console.error('❌ Method 2 Failed:', err.response ? err.response.data : err.message);
++    }
++  } else {
++    console.log('⚠️ Skipped Method 2 because Athlete ID is unavailable.');
++  }
++
++  console.log('\n----------------------------------------------------');
++  console.log('METHOD 3: GET /api/v3/athlete/activities (Header / Pagination Inspection)');
++  console.log('----------------------------------------------------');
++  try {
++    const actRes = await axios.get('https://www.strava.com/api/v3/athlete/activities?per_page=1', {
++      headers: { Authorization: `Bearer ${accessToken}` }
++    });
++    console.log('✅ Success! Response Headers inspection:');
++    console.log('   x-ratelimit-limit:', actRes.headers['x-ratelimit-limit']);
++    console.log('   x-ratelimit-usage:', actRes.headers['x-ratelimit-usage']);
++    console.log('   x-total-count:', actRes.headers['x-total-count'] || 'NOT PROVIDED BY STRAVA API');
++    console.log('   Latest Activity:', actRes.data[0] ? `ID: ${actRes.data[0].id}, Name: "${actRes.data[0].name}", Date: ${actRes.data[0].start_date}` : 'None');
++  } catch (err) {
++    console.error('❌ Method 3 Failed:', err.response ? err.response.data : err.message);
++  }
++
++  console.log('\n====================================================');
++  console.log('   Testing Completed.');
++  console.log('====================================================\n');
++}
++
++main().catch(err => console.error('Script Error:', err));
+diff --git a/src/pages/Activities.jsx b/src/pages/Activities.jsx
+index ca88062..ccb8637 100644
+--- a/src/pages/Activities.jsx
++++ b/src/pages/Activities.jsx
+@@ -1709,19 +1709,25 @@ const Activities = () => {
+                 )}
+ 
+                 {/* STEP: syncing / starting */}
+-                {(importProgress?.status === 'syncing' || importProgress?.status === 'starting') && (
+-                  <div className="my-2">
+-                    <div className="flex items-center gap-2 mb-3">
+-                      <span className="text-sm font-bold">Importing in progress...</span>
+-                    </div>
+-                    <div style={{ position: 'relative', height: '20px', background: 'rgba(15, 23, 42, 0.4)', border: '1px solid var(--color-border)', borderRadius: '10px', overflow: 'hidden', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+-                      <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${importProgress?.processed && importProgress?.count ? Math.min(95, Math.round((importProgress.count / Math.max(importProgress.processed, 1)) * 100)) : 0}%`, transition: 'width 0.4s ease', background: 'var(--color-primary)', borderRadius: '10px' }} />
+-                      <span style={{ position: 'relative', zIndex: 10, fontSize: '11px', fontWeight: 'bold', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>
+-                        {importProgress?.processed || 0} scanned / {importProgress?.count || 0} imported
+-                      </span>
++                {(importProgress?.status === 'syncing' || importProgress?.status === 'starting') && (() => {
++                  const total = importProgress?.total || 0;
++                  const processed = importProgress?.processed || 0;
++                  const count = importProgress?.count || 0;
++                  const pct = total > 0 ? Math.min(100, Math.round((processed / total) * 100)) : (processed > 0 ? Math.min(95, processed) : 0);
++                  return (
++                    <div className="my-2">
++                      <div className="flex items-center gap-2 mb-3">
++                        <span className="text-sm font-bold">Importing in progress...</span>
++                      </div>
++                      <div style={{ position: 'relative', height: '20px', background: 'rgba(15, 23, 42, 0.4)', border: '1px solid var(--color-border)', borderRadius: '10px', overflow: 'hidden', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
++                        <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${pct}%`, transition: 'width 0.4s ease', background: 'var(--color-primary)', borderRadius: '10px' }} />
++                        <span style={{ position: 'relative', zIndex: 10, fontSize: '11px', fontWeight: 'bold', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>
++                          {total > 0 ? `${processed} / ${total} scanned (${count} imported)` : `${processed} scanned (${count} imported)`}
++                        </span>
++                      </div>
+                     </div>
+-                  </div>
+-                )}
++                  );
++                })()}
+ 
+                 {/* STEP: initial form */}
+                 {!importProgress?.status && (
