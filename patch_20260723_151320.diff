@@ -1,0 +1,140 @@
+diff --git a/functions/index.js b/functions/index.js
+index f5839a1..fc745e5 100644
+--- a/functions/index.js
++++ b/functions/index.js
+@@ -2924,87 +2924,6 @@ const parseIntervalsTime = (act) => {
+   return NaN;
+ };
+ 
+-async function findAndMergeRawData(userId, iaTime, actDataOrUpdateData, batch) {
+-  const minTime = iaTime - 600000;
+-  const maxTime = iaTime + 600000;
+-  const minIso = new Date(minTime).toISOString();
+-  const maxIso = new Date(maxTime).toISOString();
+-
+-  // 1. Check Strava Raw (unmatched)
+-  try {
+-    const stravaSnap = await db.collection('users').doc(userId).collection('activities')
+-      .where('source', '==', 'strava')
+-      .where('start_date', '>=', minIso)
+-      .where('start_date', '<=', maxIso)
+-      .limit(1)
+-      .get();
+-    
+-    if (!stravaSnap.empty) {
+-      const matchDoc = stravaSnap.docs[0];
+-      const matchData = matchDoc.data();
+-      const rawStrava = matchData.bdr_stravaRawFilePayload || null;
+-      const bdr_stravaActivityId = matchData.bdr_stravaActivityId || matchDoc.id.replace('strava_', '');
+-      
+-      if (rawStrava) {
+-        actDataOrUpdateData.bdr_stravaRawFilePayload = rawStrava;
+-      }
+-      actDataOrUpdateData.bdr_stravaActivityId = bdr_stravaActivityId;
+-      
+-      // Merge L/R balance if missing
+-      const currentBalance = actDataOrUpdateData.bdr_powerBalance || null;
+-      if (!currentBalance && rawStrava) {
+-        const foundBalance = rawStrava['Left/Right Balance'] || rawStrava['Left/Right balance'] || rawStrava['avg_lr_balance'] || null;
+-        if (foundBalance) {
+-          actDataOrUpdateData.bdr_powerBalance = foundBalance;
+-        }
+-      }
+-      
+-      batch.delete(matchDoc.ref);
+-      console.log(`[IntervalsSync] Webhook matched and merged Strava raw activity: ${matchDoc.id}`);
+-    }
+-  } catch (err) {
+-    console.error('[IntervalsSync] Error matching Strava raw staging:', err.message);
+-  }
+-
+-  // 2. Check Garmin Raw (unmatched)
+-  try {
+-    const garminSnap = await db.collection('users').doc(userId).collection('activities')
+-      .where('source', '==', 'garmin')
+-      .where('startTimeGmt', '>=', minTime)
+-      .where('startTimeGmt', '<=', maxTime)
+-      .limit(1)
+-      .get();
+-
+-    if (!garminSnap.empty) {
+-      const matchDoc = garminSnap.docs[0];
+-      const matchData = matchDoc.data();
+-      const rawGarmin = matchData.bdr_garminRawFilePayload || null;
+-      const bdr_garminActivityId = matchData.bdr_garminActivityId || matchDoc.id.replace('garmin_', '');
+-
+-      if (rawGarmin) {
+-        actDataOrUpdateData.bdr_garminRawFilePayload = rawGarmin;
+-      }
+-      actDataOrUpdateData.bdr_garminActivityId = bdr_garminActivityId;
+-
+-      // Merge L/R balance if missing
+-      const currentBalance = actDataOrUpdateData.bdr_powerBalance || null;
+-      if (!currentBalance) {
+-        let foundBalance = rawGarmin.avgLeftRightBalance || rawGarmin.leftRightBalance || null;
+-        if (!foundBalance && rawGarmin.avgLeftBalance !== undefined && rawGarmin.avgLeftBalance !== null && rawGarmin.avgRightBalance !== undefined && rawGarmin.avgRightBalance !== null) {
+-          foundBalance = `${Number(rawGarmin.avgLeftBalance).toFixed(1)}% / ${Number(rawGarmin.avgRightBalance).toFixed(1)}%`;
+-        }
+-        if (foundBalance) {
+-          actDataOrUpdateData.bdr_powerBalance = foundBalance;
+-        }
+-      }
+-
+-      batch.delete(matchDoc.ref);
+-      console.log(`[IntervalsSync] Webhook matched and merged Garmin raw activity: ${matchDoc.id}`);
+-    }
+-  } catch (err) {
+-    console.error('[IntervalsSync] Error matching Garmin raw staging:', err.message);
+-  }
+-}
+ 
+ async function processNewIntervalsActivity(userId, athleteId, activityId, isMonitorActive = false, rawWebhookName = null) {
+   const cleanAthleteId = String(athleteId).replace(/\D/g, '');
+@@ -3124,15 +3043,13 @@ async function processNewIntervalsActivity(userId, athleteId, activityId, isMoni
+       const gearChanged = oldGearId !== newGearId;
+ 
+       const newStravaId = act.strava_id ? String(act.strava_id) : null;
+-      const isGarmin = (act.device_name || '').toLowerCase().includes('garmin') || (act.source || '').toLowerCase().includes('garmin');
++      const isGarmin = (act.device_name || '').toLowerCase().includes('garmin');
+       const is11DigitExternalId = act.external_id && /^\d{11}$/.test(String(act.external_id).trim());
+       const newGarminId = (isGarmin && is11DigitExternalId) ? String(act.external_id).trim() : null;
+ 
+       const stravaIdChanged = newStravaId && existingData.bdr_stravaActivityId !== newStravaId;
+       const garminIdChanged = newGarminId && existingData.bdr_garminActivityId !== newGarminId;
+ 
+-      const needsMergeCheck = !existingData.bdr_stravaRawFilePayload || existingData.bdr_stravaRawFilePayload._stub ||
+-                               !existingData.bdr_garminRawFilePayload || existingData.bdr_garminRawFilePayload._stub;
+       const triggerDelayedNotification = hasStravaConnected && existingData.telegramNotified === false && !!newStravaId;
+ 
+       let bdrOffsetSec = null;
+@@ -3179,12 +3096,6 @@ async function processNewIntervalsActivity(userId, athleteId, activityId, isMoni
+           bdr_updatedAt: new Date().toISOString(),
+         };
+ 
+-        if (needsMergeCheck) {
+-          const iaTime = parseIntervalsTime(existingData);
+-          if (!isNaN(iaTime)) {
+-            await findAndMergeRawData(userId, iaTime, updateData, batch);
+-          }
+-        }
+ 
+         if (triggerDelayedNotification) {
+           updateData.telegramNotified = true;
+@@ -3685,7 +3596,7 @@ async function processNewIntervalsActivity(userId, athleteId, activityId, isMoni
+       bdr_updatedAt: new Date().toISOString()
+     };
+ 
+-    const isGarminActivity = (act.device_name || '').toLowerCase().includes('garmin') || (act.source || '').toLowerCase().includes('garmin');
++    const isGarminActivity = (act.device_name || '').toLowerCase().includes('garmin');
+     const is11DigitExternalId = act.external_id && /^\d{11}$/.test(String(act.external_id).trim());
+ 
+     if (act.strava_id) {
+@@ -4368,7 +4279,7 @@ async function importIntervalsHistoryInternal(data, context) {
+       const activityDoc = {
+         ...act,
+         bdr_stravaActivityId: act.strava_id ? String(act.strava_id) : null,
+-        bdr_garminActivityId: ((act.source === 'GARMIN' || (act.device_name || '').toLowerCase().includes('garmin')) && act.external_id && /^\d{11}$/.test(String(act.external_id).trim())) ? String(act.external_id).trim() : null,
++        bdr_garminActivityId: ((act.device_name || '').toLowerCase().includes('garmin') && act.external_id && /^\d{11}$/.test(String(act.external_id).trim())) ? String(act.external_id).trim() : null,
+         bdr_intervalsActivityId: String(act.id),
+         name: act.name || 'Intervals.icu Activity',
+         distance: dist,
