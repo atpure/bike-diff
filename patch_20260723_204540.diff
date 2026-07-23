@@ -1,0 +1,32 @@
+diff --git a/index.html b/index.html
+index 813acac..3687104 100644
+--- a/index.html
++++ b/index.html
+@@ -4,6 +4,7 @@
+     <meta charset="UTF-8" />
+     <link rel="icon" type="image/svg+xml" href="/logo.svg?v=4" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
++    <meta name="format-detection" content="telephone=no, email=no, address=no" />
+     <meta name="theme-color" content="#0F172A" />
+     <title>BikeDoctor</title>
+   </head>
+diff --git a/src/components/Sidebar.jsx b/src/components/Sidebar.jsx
+index c5db2ba..bc6178a 100644
+--- a/src/components/Sidebar.jsx
++++ b/src/components/Sidebar.jsx
+@@ -141,7 +141,14 @@ const Sidebar = () => {
+           <img src={user?.photoURL} alt="Avatar" />
+           <div className="user-info">
+             <span className="user-name">{profile?.name || user?.displayName}</span>
+-            <span className="user-email">{user?.email ? user.email.replace('@', '\u200B@\u200B') : ''}</span>
++            <span className="user-email" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
++              {user?.email ? (() => {
++                const parts = user.email.split('@');
++                return parts.length === 2 ? (
++                  <>{parts[0]}<span>&#64;</span>{parts[1]}</>
++                ) : user.email;
++              })() : ''}
++            </span>
+           </div>
+         </div>
+         <div className="sidebar-actions">
