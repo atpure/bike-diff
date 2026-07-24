@@ -1,0 +1,61 @@
+diff --git a/functions/index.js b/functions/index.js
+index aef98c2..8494c5c 100644
+--- a/functions/index.js
++++ b/functions/index.js
+@@ -1,3 +1,4 @@
++require('dotenv').config();
+ const functions = require('firebase-functions/v1');
+ const admin = require('firebase-admin');
+ const axios = require('axios');
+@@ -123,8 +124,8 @@ async function getValidStravaToken(userId) {
+   if (!accessToken || !userData.stravaTokenExpiresAt || Date.now() / 1000 > (userData.stravaTokenExpiresAt - 300)) {
+     try {
+       const refreshRes = await axios.post('https://www.strava.com/oauth/token', {
+-        client_id: process.env.STRAVA_CLIENT_ID,
+-        client_secret: process.env.STRAVA_CLIENT_SECRET,
++        client_id: process.env.STRAVA_CLIENT_ID || '226991',
++        client_secret: process.env.STRAVA_CLIENT_SECRET || '7c788d024382bab113cf3285f99ca2c06a169503',
+         refresh_token: userData.stravaRefreshToken,
+         grant_type: 'refresh_token'
+       });
+@@ -1150,8 +1151,8 @@ exports.exchangeStravaToken = functions.region('asia-northeast3').https.onCall(a
+   if (!context.auth) throw new functions.https.HttpsError('unauthenticated', 'Login required');
+   const { code } = data;
+   const res = await axios.post('https://www.strava.com/oauth/token', {
+-    client_id: process.env.STRAVA_CLIENT_ID,
+-    client_secret: process.env.STRAVA_CLIENT_SECRET,
++    client_id: process.env.STRAVA_CLIENT_ID || '226991',
++    client_secret: process.env.STRAVA_CLIENT_SECRET || '7c788d024382bab113cf3285f99ca2c06a169503',
+     code, grant_type: 'authorization_code'
+   });
+   await db.collection('users').doc(context.auth.uid).set({
+@@ -2317,6 +2318,14 @@ async function importStravaHistoryInternal(data, context) {
+     console.error('[StravaImport] Failed to pre-load existing activity IDs:', err.message);
+   }
+ 
++  let page = 1;
++  let totalProcessed = 0;
++  let totalImported = 0;
++  let hasMore = true;
++
++  let after = startDate ? Math.floor(new Date(startDate).getTime() / 1000) : null;
++  let before = endDate ? Math.floor(new Date(endDate).getTime() / 1000) : null;
++
+   const initialStatusObj = {
+     status: 'syncing',
+     page: 1,
+@@ -2325,7 +2334,13 @@ async function importStravaHistoryInternal(data, context) {
+     total: totalStravaActivities || 0,
+     updatedAt: new Date().toISOString()
+   };
+-  await userRef.update({ importCancelled: false });
++  if (bikeRef) {
++    await bikeRef.update({ syncStatus: initialStatusObj });
++  }
++  await userRef.update({
++    importStatus: initialStatusObj,
++    importCancelled: false
++  });
+ 
+   while (hasMore) {
+     try {
