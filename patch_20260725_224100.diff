@@ -1,0 +1,29 @@
+diff --git a/src/pages/MyBikes.jsx b/src/pages/MyBikes.jsx
+index f945100..0af548b 100644
+--- a/src/pages/MyBikes.jsx
++++ b/src/pages/MyBikes.jsx
+@@ -1583,8 +1583,8 @@ const MyBikes = () => {
+                   <Download size={16} /> Import from Intervals.icu
+                 </button>
+               ) : (
+-                <button onClick={connectIntervals} className="intervals-connect-btn-wrapper" style={{ margin: 0 }}>
+-                  <Activity size={20} />
++                <button onClick={connectIntervals} className="intervals-connect-btn-wrapper" style={{ height: '36px', margin: 0, padding: '0 16px', fontSize: '0.85rem' }}>
++                  <Activity size={16} />
+                   <span>Connect with Intervals.icu</span>
+                 </button>
+               )}
+@@ -1597,11 +1597,11 @@ const MyBikes = () => {
+                   <Download size={16} /> Import from STRAVA
+                 </button>
+               ) : (
+-                <button onClick={connectStrava} className="strava-connect-btn-wrapper" style={{ margin: 0 }}>
++                <button onClick={connectStrava} className="strava-connect-btn-wrapper" style={{ margin: 0, display: 'flex', alignItems: 'center' }}>
+                   <img
+                     src={stravaConnectBtn}
+                     alt="Connect with STRAVA"
+-                    style={{ height: '48px', display: 'block' }}
++                    style={{ height: '36px', display: 'block' }}
+                   />
+                 </button>
+               )}
