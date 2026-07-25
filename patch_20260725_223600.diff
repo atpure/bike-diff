@@ -1,0 +1,15 @@
+diff --git a/src/pages/Settings.jsx b/src/pages/Settings.jsx
+index 13eb80d..028c345 100644
+--- a/src/pages/Settings.jsx
++++ b/src/pages/Settings.jsx
+@@ -1441,9 +1441,8 @@ const Settings = () => {
+                     </label>
+                     <div className="flex flex-wrap items-baseline gap-2">
+                       <label htmlFor="adminRunScheduler" className="text-white text-sm cursor-pointer select-text">
+-                        Run Periodic Consistency Checks
++                        Run 20:00 Daily Intervals Sync
+                       </label>
+-                      <span className="text-xs text-muted select-text">(Execute automated scheduler tasks to sync and reconcile activity logs globally for all users)</span>
+                     </div>
+                   </div>
+                 </div>
