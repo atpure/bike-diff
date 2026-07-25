@@ -1,0 +1,13 @@
+diff --git a/src/pages/Settings.jsx b/src/pages/Settings.jsx
+index 028c345..e91aa37 100644
+--- a/src/pages/Settings.jsx
++++ b/src/pages/Settings.jsx
+@@ -1441,7 +1441,7 @@ const Settings = () => {
+                     </label>
+                     <div className="flex flex-wrap items-baseline gap-2">
+                       <label htmlFor="adminRunScheduler" className="text-white text-sm cursor-pointer select-text">
+-                        Run 20:00 Daily Intervals Sync
++                        Run Daily Intervals Sync
+                       </label>
+                     </div>
+                   </div>
