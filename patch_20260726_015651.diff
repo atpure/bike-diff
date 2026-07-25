@@ -1,0 +1,728 @@
+diff --git a/refdata/rawdatainfo.md b/refdata/rawdatainfo.md
+index 70e3135..278321f 100644
+--- a/refdata/rawdatainfo.md
++++ b/refdata/rawdatainfo.md
+@@ -169,7 +169,262 @@ Activity ID,Activity Date,Activity Name,Activity Type,Activity Description,Elaps
+ 
+ ## 스트라바 웹훅
+ 
+-## intervals.icu 웹훅 (No GPS)
++achievement_count	0
++activityTimestamp	1784892209000
++athlete	{"resource_state":1,"id":35866213,"id_str":"35866213"}
++athlete_count	1
++available_zones	["heartrate"]
++average_cadence	81.1
++average_heartrate	134.6
++average_speed	7.05
++average_temp	28
++calories	785
++comment_count	0
++commute	false
++date	2026-07-24T20:23:29
++debugStep	2_MATCHED_GEAR
++description	◾️ 7월 24일 훈련상태 ◾️ 😨 오버트레이닝 주의 (671) 🌳 체력 40, 피로 83, 균형 -43 ◾️ 라이딩 종합 ◾️ 🚵 평지 코스 라이딩 📊 R파워 170, 강도 0.85, 훈련량 110 ✨ 회복시간 0 시간 ◾️ 심박영역 분석 ◾️ 🤍 1영역 6% 💙 2영역 7% 💚 3영역 86% 💛 4영역 1% 🧡 5영역 0% 파워미터를 활용하시면 더 상세한 정보를 보실 수 있습니다. 🔗https://www.strava.com/clubs/riduck 🔗https://riduck.com
++device_name	Garmin Edge 850
++display_hide_heartrate_option	true
++distance	38664.2
++elapsed_time	7164
++elev_high	46.4
++elev_low	4.8
++embed_token	2b4eb07f1ffb003dee7a2ae3b583c929347dd4f6
++end_latlng	[37.430074,126.999517]
++external_id	garmin_ping_603217261560
++flagged	false
++from_accepted_tag	false
++gear	{"nickname":"Yemapal","primary":false,"resource_state":2,"distance":3177746,"converted_distance":3177.7,"id":"b16963837","retired":false,"name":"Yemapal"}
++gear_id	b16963837
++has_heartrate	true
++has_kudoed	false
++heartrate_opt_out	false
++hide_from_home	false
++id	19445554064
++id_str	19445554064
++kudos_count	0
++laps	[{"lap_index":1,"total_elevation_gain":0,"split":1,"id":69461128735,"average_cadence":85.6,"activity":{"id_str":"19445554064","visibility":"everyone","id":19445554064,"resource_state":1},"max_speed":9.16,"resource_state":2,"moving_time":680,"average_speed":7.35,"elapsed_time":1035,"start_index":0,"distance":5000,"athlete":{"id_str":"35866213","id":35866213,"resource_state":1},"name":"Lap 1","end_index":669,"average_heartrate":125.3,"max_heartrate":143,"start_date":"2026-07-24T11:23:29Z","device_watts":false,"start_date_local":"2026-07-24T20:23:29Z"},{"end_index":1318,"name":"Lap 2","device_watts":false,"start_date_local":"2026-07-24T20:40:46Z","average_heartrate":136.2,"max_heartrate":143,"start_date":"2026-07-24T11:40:46Z","max_speed":9.96,"resource_state":2,"moving_time":649,"lap_index":2,"total_elevation_gain":3.6,"id":69461128741,"split":2,"average_cadence":83.4,"activity":{"visibility":"everyone","id":19445554064,"id_str":"19445554064","resource_state":1},"start_index":670,"distance":5000,"athlete":{"id_str":"35866213","id":35866213,"resource_state":1},"average_speed":7.7,"elapsed_time":649},{"total_elevation_gain":3.8,"lap_index":3,"split":3,"id":69461128749,"average_cadence":81.5,"activity":{"id_str":"19445554064","visibility":"everyone","id":19445554064,"resource_state":1},"max_speed":9.5,"resource_state":2,"moving_time":675,"average_speed":7.41,"elapsed_time":675,"start_index":1319,"distance":5000,"athlete":{"id_str":"35866213","id":35866213,"resource_state":1},"name":"Lap 3","end_index":1994,"average_heartrate":140.2,"max_heartrate":147,"start_date":"2026-07-24T11:51:35Z","device_watts":false,"start_date_local":"2026-07-24T20:51:35Z"},{"moving_time":796,"max_speed":9.44,"resource_state":2,"id":69461128761,"split":4,"activity":{"visibility":"everyone","id":19445554064,"id_str":"19445554064","resource_state":1},"average_cadence":75,"total_elevation_gain":10.2,"lap_index":4,"athlete":{"id":35866213,"id_str":"35866213","resource_state":1},"start_index":1995,"distance":5000,"elapsed_time":2059,"average_speed":6.28,"end_index":2795,"name":"Lap 4","device_watts":false,"start_date_local":"2026-07-24T21:02:51Z","start_date":"2026-07-24T12:02:51Z","average_heartrate":127.1,"max_heartrate":152},{"name":"Lap 5","end_index":3434,"start_date":"2026-07-24T12:37:11Z","max_heartrate":147,"average_heartrate":137.8,"start_date_local":"2026-07-24T21:37:11Z","device_watts":false,"activity":{"id_str":"19445554064","id":19445554064,"visibility":"everyone","resource_state":1},"average_cadence":83,"id":69461128769,"split":5,"total_elevation_gain":0.6,"lap_index":5,"moving_time":638,"max_speed":10.2,"resource_state":2,"elapsed_time":638,"average_speed":7.84,"athlete":{"resource_state":1,"id":35866213,"id_str":"35866213"},"distance":5000,"start_index":2796},{"name":"Lap 6","end_index":4131,"average_heartrate":138.1,"max_heartrate":147,"start_date":"2026-07-24T12:47:50Z","device_watts":false,"start_date_local":"2026-07-24T21:47:50Z","lap_index":6,"total_elevation_gain":5,"id":69461128777,"split":6,"activity":{"resource_state":1,"id":19445554064,"visibility":"everyone","id_str":"19445554064"},"average_cadence":84,"max_speed":9.31,"resource_state":2,"moving_time":697,"average_speed":7.17,"elapsed_time":697,"start_index":3435,"distance":5000,"athlete":{"id_str":"35866213","id":35866213,"resource_state":1}},{"name":"Lap 7","end_index":4847,"start_date":"2026-07-24T12:59:27Z","average_heartrate":138.3,"max_heartrate":145,"device_watts":false,"start_date_local":"2026-07-24T21:59:27Z","id":69461128787,"split":7,"average_cadence":82.1,"activity":{"resource_state":1,"id":19445554064,"visibility":"everyone","id_str":"19445554064"},"total_elevation_gain":15.4,"lap_index":7,"moving_time":715,"max_speed":8.46,"resource_state":2,"elapsed_time":715,"average_speed":6.99,"athlete":{"resource_state":1,"id":35866213,"id_str":"35866213"},"start_index":4132,"distance":5000},{"resource_state":2,"max_speed":8.62,"moving_time":615,"lap_index":8,"total_elevation_gain":18.8,"id":69461128796,"split":8,"activity":{"resource_state":1,"visibility":"everyone","id":19445554064,"id_str":"19445554064"},"average_cadence":73.3,"start_index":4848,"distance":3667.9,"athlete":{"resource_state":1,"id":35866213,"id_str":"35866213"},"average_speed":5.96,"elapsed_time":692,"end_index":5343,"name":"Lap 8","device_watts":false,"start_date_local":"2026-07-24T22:11:23Z","average_heartrate":135,"max_heartrate":144,"start_date":"2026-07-24T13:11:23Z"}]
++location_city	null
++location_country	null
++location_state	null
++manual	false
++map	{"id":"a19445554064","polyline":"}ltcF}thfWSWcBcBEG@BGUYa@cAiAwAqAo@q@u@kA_@]Ac@MSAIKG_@?EE@OPGBEAGIE{@OEBCIg@Yg@a@_EqDaAo@mAk@sEkEkC}Ca@_@i@YKI_AgASYc@w@o@yA]_BUqAY_Da@{B?OBMFIDCRAPI@KQyAD[Vk@TeA@YIWGIUMm@Sc@We@KIIi@mALUCuAEc@e@gAYi@g@s@u@y@mAw@cDiCmAy@UWUO]]cIsGmBeBcBsA}AaBu@g@K_@]i@{@{Au@eA[eA}EoJgGaMsCmFeA}BoCuFmEwIkDeI_D_HSm@OeA_AqIyAuN_AmICQSi@G_@C]?qAm@}CMs@MeAOq@{@aCsAqC{AqCqAmBgCoCyBiC{@s@cBmB_@c@e@u@cA_A_Ak@cCq@cDk@iAKiAD[A}BPgCj@a@TUJoAH_AKe@K{@]KAK@MNOfCKhCCNEJm@VgAdAeChBoAtAOTm@^_@X_BvAk@j@o@h@c@XgBv@w@LsD`AyCTeANm@BkCX[?[GM?w@FiAFsAL{CRMBaAf@a@H{@Fa@?OE]QOCgDb@yE\\gADwCZgGd@oAPiAH{@NkAHI@IHuA~Ac@^W\\UNo@TsAj@oA^o@Xo@\\kC`B}AjAwAZKDUTg@r@OZK`@E`@OXy@f@eBbBqA|BeBpEu@bBmCjHmAtCkA`CuA|B{@pAoC|CqAnAwCpDcAbBm@xAa@lA[nAMr@uBnNMn@c@hDq@dEGp@gAdHmAfGKX}@nE]lAg@`CGj@Qx@S~A[~Ac@nCiAhIOrA[nByA|GKp@Cb@UlAy@vCMfAAj@iAzGa@vBa@tAO|@MpAUnAWzBIfAClAAbAF|CRzBXbBhAvDn@|Af@|@d@n@nB`CnAnAPZ|ApBpMpPhAh@`@VPXXfA\\v@vFhHpE`GhFrGd@z@XRnA~A`FbGlBvBfArApAtAtAjBbDxDf@f@Zd@|DvETRLBr@?JBbApAdBlB`@Nd@HJFDJJn@J`@^`AZh@j@l@l@^d@RlANd@LVJ`@Xp@r@NZd@lAd@t@^b@t@n@r@`AVj@h@rBn@hAj@l@b@\\b@Vt@TVNx@r@`@r@Xx@Ll@NnAXfARf@^t@r@bABJ@ZIl@uBnA?BBLDB\\@b@IDE@IOYBQBELIXEFBLLF@HC@ECIOWa@k@O_@MKW_@IWCGBG?EEOHOACi@oB]}BOe@a@y@[[q@i@SKsAk@q@i@Y[OU]q@Qg@[gAa@aAc@m@}@{@o@u@OYc@eAk@}@SUk@a@c@SoBa@o@WUO_@]Y_@e@_AUu@Ms@AWCKGGI?MHI@QCSGiAcAy@iAk@s@UIo@?WKOQgHqIg@i@gEgF_BgBg@s@}K{Mg@i@mAcB_EcF{@kAi@o@gImKYk@WeAO_@e@_@mAo@m@k@y@kAgAqAu@gAc@g@_BwBcAiAgA_B_@c@k@{@aBgBuCuDa@u@s@iBWcA[_Aa@eCSuCEuCJ{CXsCNs@j@{DV{@P}@rAyHVsCn@yBRgAf@aDj@mCRq@`@yBz@}GPcANyAx@}Ej@}DjBmI\\cBPq@jAaGvCyRnA}IbA}Gb@sB`@mAl@yA^w@t@mAjCyCt@s@d@q@fBqBz@eAtBgDxAwCnJgVjBwCf@o@b@Yb@URUJk@Rk@r@oAJI|@]ZEJGvE{CtAw@dBq@|@a@N?r@WTSXe@VObAaA`@g@LGz@GjDc@`BIdAIt@M`BIfNkA`AI`AOJ@`@PTDnAIp@Qp@YbAQ~AIzE_@X@XDV?~KcAnD_Af@GhBw@jA}@xBoBpB{AZ]nAkAjCoBz@{@TIzAYd@OnAi@lBaAjAg@hAi@LE`C[t@AzCTfBT`AT|@\\x@f@tAbAj@Z~BhCh@d@V^RP\\b@rAtAv@p@`DnEl@bAr@bBlAfDTr@n@|Ct@~FVvDzAfNr@dHd@zDX`BRz@|@vCn@fBxB|EnA~BRj@vHdPV`@TNr@xAt@bALZp@zBVf@fApBdGvLZb@Rh@fEfIr@zA`AdBb@l@tBtBpBvAx@z@bClB|AtAh@^nFtEvAvA|AnAzAxAZr@n@fAd@`BZpBBl@@jADNLXnCrDLXl@pDZtCb@dCXfArAfCfApAt@f@lAzAXRjBrBhDbDHHdAd@bAn@r@j@~CrC`An@XBd@?VErA]z@[vBm@jBm@~Cm@tC[d@?b@F`@P`C~AhD`ChCnBbEvCd@^rA|@x@d@r@h@~B|Ax@t@X^Zv@t@`CtHlW`@hBj@jD`@pGPzBLlAPpCLjCCzDFVR\\@LQzB?~BPlEF|@@j@VrD|@|In@~C?NKhA?LXr@b@~@dBvBpAlCl@`Bf@tCLh@LTHF`@Hj@Xb@HtAFd@An@CjBM|@IJ?TJh@^h@r@\\TTT^fAr@bEh@tDVtA?LD\\Pf@b@|@x@lA\\^j@Xx@ZzBjAz@n@HZ@\\DJ`@h@bDjDXb@TTTNf@Nn@Xj@NzCEt@Ef@@v@FnATr@Tb@Tr@LfAb@|EpCfAz@d@b@VJt@?XEb@K`@QlDwB|Au@HIDq@FId@Y|BcAh@[|@q@vBiAn@Wv@k@zA_AVIJAV@p@b@NPxDfDpAlA|AnAbAbAHB@GUUEMCc@B]Tq@`@q@x@}ATu@l@qAFSd@aAFUT_@DW?COKAe@Nq@z@sBPQDAVDDCN[LKLA\\DZNLHHPARCHMFOEOK@A@FC@CIQNUI","summary_polyline":"kptcFoxhfWo@eAcEcE}@uA_@]Ac@O]q@M@ORUkAQsGwFoC{AsEkEkC}CwAcAiAsA}A_Ds@qDY_Da@{BJg@j@OOeB\\gAV_B[g@mCiAi@mALUIyBu@cBgB{B_I{FsV}SK_@oCkE[eAyR_`@cLkUyIcSc@{CkEoa@_@{ACoBiAwGkAsDoDcHqAmBaL{LeAyAoAiAs@a@cCq@mFw@cFTgCj@w@`@oAHeBWsA]MN[pGIZm@VmEnD_BjBmAx@{DlDkCpAkFnAyKbAeAGqJp@qBt@}AF}@[iZhCaHt@{DxDcGzByGjEwAZa@Zw@nAQbAOXy@f@eBbBqA|BiH`RyCvGqCnEaFlFwCpDcAbBoAfDi@bCiHff@}E`UmBtLuBlOyA|Ge@bDy@vCOrBiAzGsAjG{@|GQhENnEf@|DhAvDvAzCdF`G`Q~TjB`AhAxCrT~Xd@z@rQxSzNjQb@V~@BhD~DrA`@|@~CfAvArAr@|Bb@vAhAdBhDtArAr@`A`A~Cn@hAnAjA|BfAl@h@h@`AhApFr@|Ar@bADXIz@uBnABPb@Dh@OMg@P[`@GTRNEuBuDEe@FSi@oB]}Bi@uAu@w@gCoAkAeAm@gAoAqDqC_D_B}CkA_AgCm@eAg@y@}@e@_AUu@SwAQG}@?iAcAeB}BeAIg@]eb@eg@{TqYaAqCsBoAm@k@sOoSwF}GuA_Ds@cCa@eCSuCEuCJ{CXsCdBiJrAyHVsCn@yBz@iF`ByH|A{LdB{KfFeVjHuf@b@sBnAgDtAeCjKwLtBgDxAwCnJgVrCgEzAeA^wAr@oApBu@lHsEfFkBzD{Drc@}DbAXnAIfD}@zHi@jAF~KcAvEgAhBw@jR_PvCs@rI}DdEc@vHz@vAj@zDhCrJbKnErG`CjGdApElAvLtDh]l@|ClB~FhE|IjIpQl@p@r@xAt@bAvA~DzT`c@xCbDpBvAfYvVjAzBd@`BZpBJhCjDfFlBlMXfArAfC|BxBlAzAnHjHrC~AtGnFvAArJuC~Cm@tC[hAFbDpB|OhL`IjFrAtApAxDtHlWlAtGrAlRLjCCzD\\bAQzB?~BZvHtApOn@~CKfB|@rBdBvBpAlCl@`Bf@tCZ~@zBt@zBDdF[~@j@|A~A^fAzBzNt@dBvAlB`F`Cz@n@PdAtFnGxChAxFIfC\\rE|A|EpCdCjBnAEdA]jGmDN{@POxDkBfAy@fDaBjDuBb@?p@b@bM~KDG[c@?aATq@`BwC","resource_state":3}
++max_heartrate	152
++max_speed	10.2
++moving_time	5484
++name	퇴근 라이딩
++perceived_exertion	null
++photo_count	0
++photos	{"count":0,"primary":null}
++pr_count	0
++prefer_perceived_exertion	null
++private	false
++resource_state	3
++segment_efforts	[]
++splits_metric	[{"split":1,"moving_time":181,"elapsed_time":536,"average_grade_adjusted_speed":null,"elevation_difference":-7.4,"average_speed":5.54,"average_heartrate":101.03684210526316,"distance":1003.6,"pace_zone":0},{"elevation_difference":-2.2,"average_grade_adjusted_speed":null,"elapsed_time":134,"average_heartrate":125.7910447761194,"average_speed":7.47,"distance":1000.5,"pace_zone":0,"split":2,"moving_time":134},{"elapsed_time":121,"elevation_difference":-2.6,"average_grade_adjusted_speed":null,"average_speed":8.3,"average_heartrate":131.39669421487602,"pace_zone":0,"distance":1004,"split":3,"moving_time":121},{"moving_time":119,"split":4,"pace_zone":0,"distance":996,"average_grade_adjusted_speed":null,"elevation_difference":-2.4,"elapsed_time":119,"average_heartrate":140.2941176470588,"average_speed":8.37},{"elapsed_time":125,"average_grade_adjusted_speed":null,"elevation_difference":-1,"average_speed":8.01,"average_heartrate":141.496,"pace_zone":0,"distance":1001.4,"split":5,"moving_time":125},{"pace_zone":0,"distance":999.8,"average_speed":8.2,"average_heartrate":136.31147540983608,"elapsed_time":122,"elevation_difference":0.4,"average_grade_adjusted_speed":null,"moving_time":122,"split":6},{"split":7,"moving_time":137,"average_speed":7.29,"average_heartrate":137.16058394160584,"elapsed_time":137,"average_grade_adjusted_speed":null,"elevation_difference":-0.8,"pace_zone":0,"distance":998.1},{"moving_time":124,"split":8,"pace_zone":0,"distance":998.1,"average_heartrate":137.45967741935485,"average_speed":8.05,"average_grade_adjusted_speed":null,"elevation_difference":-1.8,"elapsed_time":124},{"average_grade_adjusted_speed":null,"elevation_difference":3,"elapsed_time":140,"average_heartrate":131.43571428571428,"average_speed":7.15,"distance":1001,"pace_zone":0,"split":9,"moving_time":140},{"pace_zone":0,"distance":999.7,"average_heartrate":139.18253968253967,"average_speed":7.93,"elevation_difference":0,"average_grade_adjusted_speed":null,"elapsed_time":126,"moving_time":126,"split":10},{"average_grade_adjusted_speed":null,"elevation_difference":-0.8,"elapsed_time":131,"average_heartrate":144.6030534351145,"average_speed":7.66,"distance":1004.1,"pace_zone":0,"split":11,"moving_time":131},{"distance":998,"pace_zone":0,"average_heartrate":140.46268656716418,"average_speed":7.45,"average_grade_adjusted_speed":null,"elevation_difference":-0.2,"elapsed_time":134,"moving_time":134,"split":12},{"split":13,"moving_time":137,"average_speed":7.32,"average_heartrate":142.54744525547446,"elapsed_time":137,"elevation_difference":0.6,"average_grade_adjusted_speed":null,"pace_zone":0,"distance":1002.5},{"distance":1000.3,"pace_zone":0,"average_speed":7.41,"average_heartrate":136.55555555555554,"elapsed_time":135,"elevation_difference":-1.4,"average_grade_adjusted_speed":null,"moving_time":135,"split":14},{"split":15,"moving_time":139,"elapsed_time":139,"average_grade_adjusted_speed":null,"elevation_difference":-1,"average_speed":7.16,"average_heartrate":137.27338129496403,"distance":995.2,"pace_zone":0},{"average_speed":7.67,"average_heartrate":135.41221374045801,"elapsed_time":131,"average_grade_adjusted_speed":null,"elevation_difference":-4.4,"pace_zone":0,"distance":1004.2,"split":16,"moving_time":131},{"average_heartrate":111.44237918215613,"average_speed":3.67,"average_grade_adjusted_speed":null,"elevation_difference":2.2,"elapsed_time":1535,"distance":999.1,"pace_zone":0,"split":17,"moving_time":272},{"moving_time":148,"split":18,"distance":1001.6,"pace_zone":0,"average_speed":6.77,"average_heartrate":129.0810810810811,"elapsed_time":148,"average_grade_adjusted_speed":null,"elevation_difference":3.2},{"pace_zone":0,"distance":998.7,"average_grade_adjusted_speed":null,"elevation_difference":-0.2,"elapsed_time":123,"average_heartrate":133.41463414634146,"average_speed":8.12,"moving_time":123,"split":19},{"distance":996.8,"pace_zone":0,"average_grade_adjusted_speed":null,"elevation_difference":4,"elapsed_time":123,"average_heartrate":143.47967479674796,"average_speed":8.1,"moving_time":123,"split":20},{"elapsed_time":121,"elevation_difference":-4,"average_grade_adjusted_speed":null,"average_speed":8.26,"average_heartrate":141.83471074380165,"pace_zone":0,"distance":999.5,"split":21,"moving_time":121},{"split":22,"moving_time":127,"average_grade_adjusted_speed":null,"elevation_difference":0,"elapsed_time":127,"average_heartrate":136.84251968503938,"average_speed":7.91,"pace_zone":0,"distance":1005.2},{"moving_time":130,"split":23,"pace_zone":0,"distance":994.7,"elevation_difference":-0.2,"average_grade_adjusted_speed":null,"elapsed_time":130,"average_heartrate":133.6846153846154,"average_speed":7.65},{"pace_zone":0,"distance":1002.2,"elapsed_time":129,"average_grade_adjusted_speed":null,"elevation_difference":-0.6,"average_speed":7.77,"average_heartrate":139.58139534883722,"moving_time":129,"split":24},{"moving_time":132,"split":25,"pace_zone":0,"distance":1001.7,"elevation_difference":-1.2,"average_grade_adjusted_speed":null,"elapsed_time":132,"average_heartrate":137.36363636363637,"average_speed":7.59},{"moving_time":140,"split":26,"pace_zone":0,"distance":997.4,"elapsed_time":140,"elevation_difference":1,"average_grade_adjusted_speed":null,"average_speed":7.12,"average_heartrate":140.96376811594203},{"split":27,"moving_time":138,"elapsed_time":138,"elevation_difference":1,"average_grade_adjusted_speed":null,"average_speed":7.27,"average_heartrate":138.04347826086956,"distance":1003,"pace_zone":0},{"average_speed":6.73,"average_heartrate":133.01351351351352,"elapsed_time":148,"average_grade_adjusted_speed":null,"elevation_difference":0,"pace_zone":0,"distance":996.7,"split":28,"moving_time":148},{"split":29,"moving_time":132,"average_heartrate":138.3030303030303,"average_speed":7.58,"average_grade_adjusted_speed":null,"elevation_difference":0.8,"elapsed_time":132,"distance":1000,"pace_zone":0},{"average_heartrate":140.3453237410072,"average_speed":7.19,"elevation_difference":0.8,"average_grade_adjusted_speed":null,"elapsed_time":139,"pace_zone":0,"distance":998.8,"split":30,"moving_time":139},{"moving_time":144,"split":31,"pace_zone":0,"distance":1001.6,"average_speed":6.96,"average_heartrate":140.00694444444446,"elapsed_time":144,"elevation_difference":4,"average_grade_adjusted_speed":null},{"split":32,"moving_time":144,"average_speed":6.96,"average_heartrate":135.75,"elapsed_time":144,"average_grade_adjusted_speed":null,"elevation_difference":2.4,"distance":1002.2,"pace_zone":0},{"distance":997.3,"pace_zone":0,"average_speed":6.97,"average_heartrate":134.83216783216784,"elapsed_time":143,"elevation_difference":1.8,"average_grade_adjusted_speed":null,"moving_time":143,"split":33},{"elevation_difference":3.4,"average_grade_adjusted_speed":null,"elapsed_time":140,"average_heartrate":139.82857142857142,"average_speed":7.15,"distance":1000.5,"pace_zone":0,"split":34,"moving_time":140},{"split":35,"moving_time":145,"average_heartrate":141.24137931034483,"average_speed":6.91,"average_grade_adjusted_speed":null,"elevation_difference":3.8,"elapsed_time":145,"pace_zone":0,"distance":1001.3},{"average_heartrate":141.03424657534248,"average_speed":6.86,"average_grade_adjusted_speed":null,"elevation_difference":4.4,"elapsed_time":146,"pace_zone":0,"distance":1001.6,"split":36,"moving_time":146},{"average_speed":7.19,"average_heartrate":137.7841726618705,"elapsed_time":139,"elevation_difference":3,"average_grade_adjusted_speed":null,"distance":999.5,"pace_zone":0,"split":37,"moving_time":139},{"average_heartrate":135.28187919463087,"average_speed":6.68,"elevation_difference":3.4,"average_grade_adjusted_speed":null,"elapsed_time":149,"distance":995.2,"pace_zone":0,"split":38,"moving_time":149},{"moving_time":181,"split":39,"pace_zone":0,"distance":666.8,"elapsed_time":258,"elevation_difference":8,"average_grade_adjusted_speed":null,"average_speed":3.68,"average_heartrate":127.47093023255815}]
++splits_standard	[{"average_speed":6.07,"average_heartrate":108.70545454545454,"elapsed_time":621,"elevation_difference":-8,"average_grade_adjusted_speed":null,"distance":1614,"pace_zone":0,"split":1,"moving_time":266},{"split":2,"moving_time":195,"elevation_difference":-4.8,"average_grade_adjusted_speed":null,"elapsed_time":195,"average_heartrate":130.9025641025641,"average_speed":8.25,"distance":1608.4,"pace_zone":0},{"average_heartrate":141.010101010101,"average_speed":8.15,"elevation_difference":-2.6,"average_grade_adjusted_speed":null,"elapsed_time":198,"distance":1612.9,"pace_zone":0,"split":3,"moving_time":198},{"average_speed":7.8,"average_heartrate":137.40291262135923,"elapsed_time":206,"elevation_difference":-0.4,"average_grade_adjusted_speed":null,"pace_zone":0,"distance":1607,"split":4,"moving_time":206},{"moving_time":204,"split":5,"pace_zone":0,"distance":1606.2,"average_grade_adjusted_speed":null,"elevation_difference":-1.8,"elapsed_time":204,"average_heartrate":137.00980392156862,"average_speed":7.87},{"distance":1610.8,"pace_zone":0,"average_grade_adjusted_speed":null,"elevation_difference":3.2,"elapsed_time":218,"average_heartrate":134.05963302752295,"average_speed":7.39,"moving_time":218,"split":6},{"moving_time":208,"split":7,"pace_zone":0,"distance":1607.1,"average_speed":7.73,"average_heartrate":143.23076923076923,"elapsed_time":208,"average_grade_adjusted_speed":null,"elevation_difference":-1.2},{"moving_time":220,"split":8,"distance":1611.1,"pace_zone":0,"average_heartrate":141.8909090909091,"average_speed":7.32,"average_grade_adjusted_speed":null,"elevation_difference":3.4,"elapsed_time":220},{"average_speed":7.35,"average_heartrate":137.89954337899545,"elapsed_time":219,"elevation_difference":-5,"average_grade_adjusted_speed":null,"pace_zone":0,"distance":1610.5,"split":9,"moving_time":219},{"split":10,"moving_time":214,"elapsed_time":214,"elevation_difference":-5,"average_grade_adjusted_speed":null,"average_speed":7.5,"average_heartrate":135.11682242990653,"distance":1605.7,"pace_zone":0},{"moving_time":366,"split":11,"pace_zone":0,"distance":1612.6,"elevation_difference":5.4,"average_grade_adjusted_speed":null,"elapsed_time":1629,"average_heartrate":115.78236914600551,"average_speed":4.41},{"split":12,"moving_time":203,"elapsed_time":203,"elevation_difference":0.2,"average_grade_adjusted_speed":null,"average_speed":7.94,"average_heartrate":133.07389162561577,"pace_zone":0,"distance":1612},{"moving_time":197,"split":13,"distance":1608.5,"pace_zone":0,"average_grade_adjusted_speed":null,"elevation_difference":0,"elapsed_time":197,"average_heartrate":143.9543147208122,"average_speed":8.16},{"pace_zone":0,"distance":1606.9,"average_speed":7.88,"average_heartrate":136.00980392156862,"elapsed_time":204,"elevation_difference":-0.6,"average_grade_adjusted_speed":null,"moving_time":204,"split":14},{"moving_time":209,"split":15,"pace_zone":0,"distance":1607.7,"elevation_difference":-0.6,"average_grade_adjusted_speed":null,"elapsed_time":209,"average_heartrate":137.66985645933013,"average_speed":7.69},{"elevation_difference":0,"average_grade_adjusted_speed":null,"elapsed_time":219,"average_heartrate":139.10045662100455,"average_speed":7.36,"distance":1611.8,"pace_zone":0,"split":16,"moving_time":219},{"pace_zone":0,"distance":1607.3,"average_heartrate":137.44933920704847,"average_speed":7.02,"average_grade_adjusted_speed":null,"elevation_difference":0.6,"elapsed_time":229,"moving_time":229,"split":17},{"moving_time":220,"split":18,"distance":1614.9,"pace_zone":0,"average_speed":7.34,"average_heartrate":135.5909090909091,"elapsed_time":220,"elevation_difference":1.2,"average_grade_adjusted_speed":null},{"average_heartrate":139.47787610619469,"average_speed":7.11,"average_grade_adjusted_speed":null,"elevation_difference":3,"elapsed_time":226,"distance":1606.6,"pace_zone":0,"split":19,"moving_time":226},{"split":20,"moving_time":231,"average_speed":6.96,"average_heartrate":137.58441558441558,"elapsed_time":231,"average_grade_adjusted_speed":null,"elevation_difference":4.2,"distance":1606.7,"pace_zone":0},{"pace_zone":0,"distance":1612.2,"elevation_difference":4,"average_grade_adjusted_speed":null,"elapsed_time":228,"average_heartrate":136.8421052631579,"average_speed":7.07,"moving_time":228,"split":21},{"distance":1608.4,"pace_zone":0,"average_heartrate":141.84549356223175,"average_speed":6.9,"average_grade_adjusted_speed":null,"elevation_difference":7.4,"elapsed_time":233,"moving_time":233,"split":22},{"elevation_difference":5,"average_grade_adjusted_speed":null,"elapsed_time":228,"average_heartrate":138.58333333333334,"average_speed":7.06,"pace_zone":0,"distance":1610.1,"split":23,"moving_time":228},{"moving_time":305,"split":24,"pace_zone":0,"distance":1605.5,"elapsed_time":356,"elevation_difference":11.4,"average_grade_adjusted_speed":null,"average_speed":5.26,"average_heartrate":131.24671052631578},{"elevation_difference":0,"average_grade_adjusted_speed":null,"elapsed_time":49,"average_heartrate":126.73333333333333,"average_speed":1.87,"pace_zone":0,"distance":43,"split":25,"moving_time":23}]
++sport_image_visibility	everyone
++sport_type	Ride
++start_date	2026-07-24T11:23:29Z
++start_date_local	2026-07-24T20:23:29Z
++start_latlng	[37.465279,127.025593]
++stats_visibility	[{"visibility":"everyone","type":"heart_rate"},{"visibility":"everyone","type":"pace"},{"visibility":"everyone","type":"power"},{"visibility":"everyone","type":"speed"},{"visibility":"everyone","type":"calories"},{"visibility":"everyone","type":"weight_lifted"}]
++stravaGearId	b16963837
++suffer_score	116
++timezone	(GMT+09:00) Asia/Seoul
++total_elevation_gain	66
++total_photo_count	0
++trainer	false
++type	Ride
++updatedAt	2026-07-24T13:24:59.155Z
++upload_id	20566764808
++upload_id_str	20566764808
++utc_offset	32400
++visibility	everyone
++workout_type	null
+ 
+ ## intervals.icu 웹훅 (GPS)
+ 
++activityTimestamp	1784892209000
++analysis_issues	null
++analyzed	2026-07-24T13:23:51.469+00:00
++athlete_max_hr	193
++attachments	null
++average_altitude	15.340683
++average_cadence	81.03967
++average_clouds	null
++average_feels_like	null
++average_heartrate	135
++average_speed	7.07
++average_stride	2.6260197
++average_temp	28.436028
++average_weather_temp	null
++average_wind_gust	null
++average_wind_speed	null
++avg_lr_balance	null
++calories	785
++carbs_ingested	100
++carbs_used	null
++coach_tick	null
++coasting_time	null
++commute	false
++compliance	null
++crank_length	null
++created	2026-07-24T13:23:51.207+00:00
++custom_zones	null
++date	2026-07-24T20:23:29
++decoupling	null
++description	null
++device_name	Garmin Edge 850
++device_watts	null
++distance	38667.9
++elapsed_time	7164
++endLat	37.430073
++endLng	126.99952
++external_id	23715197655
++feel	null
++file_sport_index	0
++file_type	fit
++gap	null
++gap_model	NONE
++gap_zone_times	null
++gear	{"distance":null,"name":null,"primary":null,"id":"b16963837"}
++group	341a433b
++has_heartrate	true
++has_segments	true
++has_weather	false
++headwind_percent	null
++hr_load	63
++hr_load_type	HRSS
++icu_achievements	null
++icu_athlete_id	i632315
++icu_atl	13.000346
++icu_average_watts	null
++icu_cadence_z2	null
++icu_chat_id	null
++icu_color	null
++icu_cooldown_time	600
++icu_ctl	24.662174
++icu_distance	38667.9
++icu_efficiency_factor	null
++icu_ftp	200
++icu_hr_zone_times	[4079,1389,0,0,0,0,0]
++icu_hr_zones	[140,156,163,174,179,184,193]
++icu_hrr	null
++icu_ignore_hr	false
++icu_ignore_power	false
++icu_ignore_time	false
++icu_intensity	64.139786
++icu_intervals_edited	null
++icu_joules	null
++icu_joules_above_ftp	null
++icu_lap_count	8
++icu_max_wbal_depletion	null
++icu_median_time_delta	1
++icu_pm_cp	null
++icu_pm_ftp	null
++icu_pm_ftp_secs	null
++icu_pm_ftp_watts	null
++icu_pm_p_max	null
++icu_pm_w_prime	null
++icu_power_hr	null
++icu_power_hr_z2	null
++icu_power_hr_z2_mins	null
++icu_power_spike_threshold	null
++icu_power_zones	[55,75,90,105,120,150,999]
++icu_recording_time	5513
++icu_resting_hr	47
++icu_rolling_cp	null
++icu_rolling_ftp	193
++icu_rolling_ftp_delta	0
++icu_rolling_p_max	666.02545
++icu_rolling_w_prime	17682.701
++icu_rpe	null
++icu_sweet_spot_max	97
++icu_sweet_spot_min	84
++icu_sync_date	2026-07-24T13:23:51.469+00:00
++icu_sync_error	null
++icu_training_load	63
++icu_training_load_data	100
++icu_variability_index	null
++icu_w_prime	null
++icu_warmup_time	1200
++icu_weight	68
++icu_weighted_avg_watts	null
++icu_zone_times	null
++id	QKwtV8HGOg3xoWJMUnTI
++ignore_pace	false
++ignore_parts	null
++ignore_velocity	false
++interval_summary	["1x 17m16s 125bpm","6x 11m18s 137bpm","1x 34m20s 126bpm"]
++kg_lifted	null
++lengths	null
++lock_intervals	null
++lthr	175
++max_altitude	46.4
++max_feels_like	null
++max_heartrate	152
++max_rain	null
++max_snow	null
++max_speed	10.226
++max_temp	30
++max_weather_temp	null
++min_altitude	4.8
++min_feels_like	null
++min_temp	26
++min_weather_temp	null
++moving_time	5451
++name	퇴근 라이딩
++oauth_client_id	null
++oauth_client_name	null
++p_max	null
++p30s_exponent	null
++pace	7.0937257
++pace_load	null
++pace_load_type	null
++pace_zone_times	null
++pace_zones	null
++paired_event_id	null
++perceived_exertion	null
++polarization_index	0
++pool_length	null
++power_field	null
++power_field_names	null
++power_load	null
++power_meter	null
++power_meter_battery	null
++power_meter_serial	null
++prevailing_wind_deg	null
++race	false
++recording_stops	[21,83,143,2531,3527,3670,3936,7008,7127]
++route_id	null
++session_rpe	null
++skyline_chart_bytes	CAcSDKwFigWjBaEGhBDpBBoGR01QSE5MIgYBAQEBAQEoAg==
++source	GARMIN_CONNECT
++ss_cp	null
++ss_p_max	null
++ss_w_prime	null
++start_date	2026-07-24T11:23:29Z
++start_date_local	2026-07-24T20:23:29
++startLat	37.46528
++startLng	127.0256
++strain_score	null
++strava_id	19445554064
++stream_types	["time","cadence","heartrate","distance","altitude","latlng","velocity_smooth","temp"]
++sub_type	null
++tags	null
++tailwind_percent	null
++telegramNotified	true
++threshold_pace	null
++timezone	null
++tiz_order	POWER_HR_PACE
++total_elevation_gain	66
++total_elevation_loss	46
++trainer	null
++trimp	111.48758
++type	Ride
++updatedAt	2026-07-25T11:00:11.764Z
++use_elevation_correction	false
++use_gap_zone_times	null
++workout_shift_secs	null
+\ No newline at end of file
+diff --git a/src/components/icons/IntervalsIcon.jsx b/src/components/icons/IntervalsIcon.jsx
+new file mode 100644
+index 0000000..1a0a7f8
+--- /dev/null
++++ b/src/components/icons/IntervalsIcon.jsx
+@@ -0,0 +1,26 @@
++import React from 'react';
++
++/**
++ * Official Intervals.icu Waveform Logo Icon
++ * Equal left and right horizontal baselines (5.2px each), uniform stroke thickness, rounded joins.
++ */
++const IntervalsIcon = ({ size = 20, color = 'currentColor', className = '', style = {} }) => {
++  return (
++    <svg
++      width={size}
++      height={size}
++      viewBox="0 0 24 24"
++      fill="none"
++      stroke={color}
++      strokeWidth="2.6"
++      strokeLinecap="round"
++      strokeLinejoin="round"
++      className={className}
++      style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, ...style }}
++    >
++      <path d="M 0 12.5 H 5.2 L 8.6 7.0 L 12.0 18.0 L 15.4 3.6 L 18.8 12.5 H 24" />
++    </svg>
++  );
++};
++
++export default IntervalsIcon;
+diff --git a/src/components/icons/StravaIcon.jsx b/src/components/icons/StravaIcon.jsx
+new file mode 100644
+index 0000000..457f408
+--- /dev/null
++++ b/src/components/icons/StravaIcon.jsx
+@@ -0,0 +1,28 @@
++import React from 'react';
++
++/**
++ * Perfect Geometric Strava Logo Icon
++ * 1. Upper chevron: symmetrical, slope ±1.5, thicker.
++ * 2. Lower chevron: symmetrical, slope ±1.5, slightly thinner.
++ * 3. Positioned exactly at the right-half width (starts exactly at upper's center apex).
++ * 4. Meets exactly flush on the y=12 baseline with a seamless overlap merge.
++ */
++const StravaIcon = ({ size = 20, color = '#fc4c02', className = '', style = {} }) => {
++  return (
++    <svg
++      width={size}
++      height={size}
++      viewBox="0 0 24 24"
++      fill={color}
++      className={className}
++      style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, ...style }}
++    >
++      {/* Upper Chevron */}
++      <path d="M 9 3 L 3 12 H 6.6 L 9 8.4 L 11.4 12 H 15 Z" />
++      {/* Lower Chevron */}
++      <path d="M 9 12 L 15 21 L 21 12 H 18.2 L 15 16.8 L 11.8 12 Z" />
++    </svg>
++  );
++};
++
++export default StravaIcon;
+diff --git a/src/components/modals/AddTrainerModal.jsx b/src/components/modals/AddTrainerModal.jsx
+index e83eb7d..ab7990c 100644
+--- a/src/components/modals/AddTrainerModal.jsx
++++ b/src/components/modals/AddTrainerModal.jsx
+@@ -58,7 +58,7 @@ const AddTrainerModal = ({ isOpen, onClose, onAdd, trainers }) => {
+           </div>
+ 
+           <div className="form-group">
+-            <label>Initial Distance (km)</label>
++            <label>Initial Mileage (km)</label>
+             <input 
+               type="number" 
+               step="0.1"
+diff --git a/src/components/modals/EditTrainerModal.jsx b/src/components/modals/EditTrainerModal.jsx
+index 6a2f2ec..1b372e7 100644
+--- a/src/components/modals/EditTrainerModal.jsx
++++ b/src/components/modals/EditTrainerModal.jsx
+@@ -47,7 +47,7 @@ const EditTrainerModal = ({ isOpen, onClose, onSave, trainer }) => {
+         </div>
+ 
+         <div className="form-group">
+-          <label>Initial Distance (km)</label>
++          <label>Initial Mileage (km)</label>
+           <input 
+             type="number" 
+             step="0.1"
+diff --git a/src/pages/History.jsx b/src/pages/History.jsx
+index 3a0b30c..d7265e5 100644
+--- a/src/pages/History.jsx
++++ b/src/pages/History.jsx
+@@ -337,7 +337,7 @@ const History = () => {
+                 <th>Part</th>
+                 <th>Bike ODO</th>
+                 <th>Mileage</th>
+-                <th className="text-center">Action</th>
++                <th className="text-center">Service Type</th>
+                 <th width="100" className="text-center">Delete</th>
+               </tr>
+             </thead>
+@@ -463,7 +463,7 @@ const History = () => {
+                   />
+                 </div>
+                 <div className="form-group">
+-                  <label>Mileage at Action (km)</label>
++                  <label>Mileage at Service (km)</label>
+                   <input
+                     type="number"
+                     value={newEntry.distance}
+@@ -472,7 +472,7 @@ const History = () => {
+                   />
+                 </div>
+                 <div className="form-group">
+-                  <label>Action</label>
++                  <label>Service Type</label>
+                   <select
+                     value={newEntry.action}
+                     onChange={(e) => setNewEntry({ ...newEntry, action: e.target.value })}
+@@ -534,7 +534,7 @@ const History = () => {
+                   />
+                 </div>
+                 <div className="form-group">
+-                  <label>Mileage at Action (km)</label>
++                  <label>Mileage at Service (km)</label>
+                   <input
+                     type="number"
+                     value={editingEntry.distance}
+@@ -558,7 +558,7 @@ const History = () => {
+                   />
+                 </div>
+                 <div className="form-group">
+-                  <label>Action</label>
++                  <label>Service Type</label>
+                   <select
+                     value={editingEntry.action}
+                     onChange={(e) => setEditingEntry({ ...editingEntry, action: e.target.value })}
+diff --git a/src/pages/ManageParts.jsx b/src/pages/ManageParts.jsx
+index a2f3e2e..cbef824 100644
+--- a/src/pages/ManageParts.jsx
++++ b/src/pages/ManageParts.jsx
+@@ -669,7 +669,7 @@ const ManageParts = () => {
+ 
+ 
+   const handleExportCSV = () => {
+-    const headers = ["Type", "Brand", "Model", "Initial Distance (km)", "Replacement Interval (km)", "Periodic", "Installed (Normal)", "Installed (Virtual)", "Visible"];
++    const headers = ["Type", "Brand", "Model", "Initial Mileage (km)", "Service Interval (km)", "Periodic", "Installed (Normal)", "Installed (Virtual)", "Visible"];
+     const rows = parts.map(p => [
+       (p.type || ''),
+       (p.brand || ''),
+@@ -1140,7 +1140,7 @@ const ManageParts = () => {
+                   />
+                 </div>
+                 <div className="form-group">
+-                  <label>Initial Distance (km)</label>
++                  <label>Initial Mileage (km)</label>
+                   <input
+                     type="number"
+                     step="0.1"
+@@ -1149,7 +1149,7 @@ const ManageParts = () => {
+                   />
+                 </div>
+                 <div className="form-group">
+-                  <label>Replacement Interval (km)</label>
++                  <label>Service Interval (km)</label>
+                   <input
+                     type="number"
+                     value={newPart.lifespan}
+@@ -1158,7 +1158,7 @@ const ManageParts = () => {
+                   />
+                 </div>
+                 <div className="form-group">
+-                  <label>Linked to</label>
++                  <label>Mounted on</label>
+                   <select
+                     value={newPart.linkedTo || ''}
+                     onChange={(e) => setNewPart({ ...newPart, linkedTo: e.target.value })}
+@@ -1272,7 +1272,7 @@ const ManageParts = () => {
+                   />
+                 </div>
+                 <div className="form-group">
+-                  <label>Initial Distance (km)</label>
++                  <label>Initial Mileage (km)</label>
+                   <input
+                     type="number"
+                     step="0.1"
+@@ -1281,7 +1281,7 @@ const ManageParts = () => {
+                   />
+                 </div>
+                 <div className="form-group">
+-                  <label>Replacement Interval (km)</label>
++                  <label>Service Interval (km)</label>
+                   <input
+                     type="number"
+                     value={editingPart.lifespan}
+@@ -1289,7 +1289,7 @@ const ManageParts = () => {
+                   />
+                 </div>
+                 <div className="form-group">
+-                  <label>Linked to</label>
++                  <label>Mounted on</label>
+                   <select
+                     value={editingPart.linkedTo || ''}
+                     onChange={(e) => setEditingPart({ ...editingPart, linkedTo: e.target.value })}
+diff --git a/src/pages/MyBikes.jsx b/src/pages/MyBikes.jsx
+index ec703a5..36a3326 100644
+--- a/src/pages/MyBikes.jsx
++++ b/src/pages/MyBikes.jsx
+@@ -19,6 +19,7 @@ import EditTrainerModal from '../components/modals/EditTrainerModal.jsx';
+ import { recalculateAllTrainersDistances, recalculateBikePartDistances, parseDateToMillis, getBikeDisplayName } from '../utils/distanceUtils';
+ import LoadingScreen from '../components/LoadingScreen';
+ import { checkServerConnection } from '../utils/firestoreHelper';
++import IntervalsIcon from '../components/icons/IntervalsIcon';
+ 
+ const getLogPrefix = (log) => {
+   const step = String(log.step || '');
+@@ -148,7 +149,7 @@ const UnretireIcon = ({ size = 18 }) => (
+   }}>U</div>
+ );
+ 
+-const BikeCard = ({ bike, onClick, onClone, onDelete, onRetire, isRetired, dragHandleProps, isAdmin }) => {
++const BikeCard = ({ bike, onClick, onClone, onDelete, onRetire, isRetired, dragHandleProps, isAdmin, isBothServicesActive = true }) => {
+   const isIntervalsOnly = !!(bike.intervalsGearId && (!bike.stravaGearId || bike.stravaGearId === 'N/A'));
+ 
+   return (
+@@ -159,9 +160,20 @@ const BikeCard = ({ bike, onClick, onClone, onDelete, onRetire, isRetired, dragH
+       <div className="bike-card-main-content" style={{ cursor: 'pointer', flex: 1, display: 'flex', alignItems: 'center', gap: '1rem' }}>
+         <div
+           className="bike-card-icon"
+-          onClick={(e) => { e.stopPropagation(); if (onClone) onClone(bike); }}
+-          title="Clone this bike's data"
+-          style={{ transition: 'all 0.2s', position: 'relative', cursor: 'pointer' }}
++          onClick={(e) => {
++            e.stopPropagation();
++            if (!isBothServicesActive) {
++              if (onClick) onClick();
++              return;
++            }
++            if (onClone) onClone(bike);
++          }}
++          title={isBothServicesActive ? "Clone this bike's data" : "Manage parts for this bike"}
++          style={{
++            transition: 'all 0.2s',
++            position: 'relative',
++            cursor: 'pointer'
++          }}
+           onMouseOver={(e) => {
+             e.currentTarget.style.background = isRetired ? 'rgba(100, 100, 100, 0.25)' : 'rgba(59, 130, 246, 0.25)';
+             e.currentTarget.style.transform = 'scale(1.05)';
+@@ -737,6 +749,10 @@ const MyBikes = () => {
+   });
+ 
+   const handleOpenCloneModal = (bike) => {
++    if (!serviceSettings.isStravaActive || !serviceSettings.isIntervalsActive) {
++      showToast('Both STRAVA and Intervals.icu connections must be enabled in Settings to clone bike data.', 'info');
++      return;
++    }
+     // bike = the CLICKED bike = TARGET (receives data)
+     const allOther = [...(bikes || [])].filter(b => b.id !== bike.id);
+     setCloneSourceBike(bike);          // reuse state name, but this is now the TARGET
+@@ -1579,12 +1595,13 @@ const MyBikes = () => {
+           {serviceSettings.isIntervalsActive && (
+             <div>
+               {intervalsConnected ? (
+-                <button onClick={() => handleImportClick('intervals')} className="btn-primary" style={{ height: '36px', padding: '0 16px', fontSize: '0.85rem' }}>
+-                  <Download size={16} /> Import from Intervals.icu
++                <button onClick={() => handleImportClick('intervals')} className="btn-primary" style={{ height: '36px', padding: '0 16px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
++                  <IntervalsIcon size={16} />
++                  <span>Import from Intervals.icu</span>
+                 </button>
+               ) : (
+                 <button onClick={connectIntervals} className="intervals-connect-btn-wrapper" style={{ height: '36px', margin: 0, padding: '0 16px', fontSize: '0.85rem' }}>
+-                  <Activity size={16} />
++                  <IntervalsIcon size={16} />
+                   <span>Connect with Intervals.icu</span>
+                 </button>
+               )}
+@@ -1676,6 +1693,7 @@ const MyBikes = () => {
+                             navigate('/manage-parts');
+                           }}
+                           onClone={handleOpenCloneModal}
++                          isBothServicesActive={serviceSettings.isStravaActive && serviceSettings.isIntervalsActive}
+                           onDelete={() => setDeleteConfirm({ show: true, type: 'bike', item: bike, loading: false })}
+                           isAdmin={profile?.isAdmin && profile?.showDebugInfo}
+                         />
+@@ -1763,6 +1781,7 @@ const MyBikes = () => {
+                                     onRetire={(b) => toggleRetireBike(b.id, false)}
+                                     onClick={() => { }}
+                                     onClone={handleOpenCloneModal}
++                                    isBothServicesActive={serviceSettings.isStravaActive && serviceSettings.isIntervalsActive}
+                                     onDelete={() => setDeleteConfirm({ show: true, type: 'bike', item: bike, loading: false })}
+                                     isAdmin={profile?.isAdmin && profile?.showDebugInfo}
+                                   />
+diff --git a/src/pages/Reconcile.jsx b/src/pages/Reconcile.jsx
+index df23573..2367189 100644
+--- a/src/pages/Reconcile.jsx
++++ b/src/pages/Reconcile.jsx
+@@ -2154,16 +2154,18 @@ const Reconcile = ({ isSubComponent = false }) => {
+                             <span className="text-xs opacity-60 italic">{group.intervals.gear}</span>
+                           )}
+                           <div className="flex items-center gap-1.5 mt-1">
+-                            <button
+-                              onClick={() => {
+-                                setDiagnosticTitle('Intervals.icu Raw DB Payload');
+-                                setDiagnosticData(cleanObjectOfPostfixes(group.intervals.raw));
+-                              }}
+-                              title="Show raw DB data"
+-                              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+-                            >
+-                              <Database className="text-accent hover:scale-110 transition-transform" size={12} />
+-                            </button>
++                            {profile?.isAdmin && profile?.showDebugInfo && (
++                              <button
++                                onClick={() => {
++                                  setDiagnosticTitle('Intervals.icu Raw DB Payload');
++                                  setDiagnosticData(cleanObjectOfPostfixes(group.intervals.raw));
++                                }}
++                                title="Show raw DB data"
++                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
++                              >
++                                <Database className="text-accent hover:scale-110 transition-transform" size={12} />
++                              </button>
++                            )}
+                             {(() => {
+                               const bdr_intervalsActivityId = group.intervals.raw.bdr_intervalsActivityId || null;
+                               return bdr_intervalsActivityId ? (
+@@ -2215,16 +2217,18 @@ const Reconcile = ({ isSubComponent = false }) => {
+ 
+                             <span className="text-xs opacity-60 italic">{stravaGear || ' '}</span>
+                             <div className="flex items-center gap-1.5 mt-1">
+-                              <button
+-                                onClick={() => {
+-                                  setDiagnosticTitle('STRAVA Raw DB Payload');
+-                                  setDiagnosticData(cleanObjectOfPostfixes(stravaPayload));
+-                                }}
+-                                title="Show raw DB data"
+-                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+-                              >
+-                                <Database className="text-accent hover:scale-110 transition-transform" size={12} />
+-                              </button>
++                              {profile?.isAdmin && profile?.showDebugInfo && (
++                                <button
++                                  onClick={() => {
++                                    setDiagnosticTitle('STRAVA Raw DB Payload');
++                                    setDiagnosticData(cleanObjectOfPostfixes(stravaPayload));
++                                  }}
++                                  title="Show raw DB data"
++                                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
++                                >
++                                  <Database className="text-accent hover:scale-110 transition-transform" size={12} />
++                                </button>
++                              )}
+                               {stravaId ? (
+                                 <a
+                                   href={`https://www.strava.com/activities/${stravaId}`}
+@@ -2272,16 +2276,18 @@ const Reconcile = ({ isSubComponent = false }) => {
+ 
+                             <span className="text-xs opacity-60 italic">{garminGear || ' '}</span>
+                             <div className="flex items-center gap-1.5 mt-1">
+-                              <button
+-                                onClick={() => {
+-                                  setDiagnosticTitle('Garmin Raw DB Payload');
+-                                  setDiagnosticData(cleanObjectOfPostfixes(garminPayload));
+-                                }}
+-                                title="Show raw DB data"
+-                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+-                              >
+-                                <Database className="text-accent hover:scale-110 transition-transform" size={12} />
+-                              </button>
++                              {profile?.isAdmin && profile?.showDebugInfo && (
++                                <button
++                                  onClick={() => {
++                                    setDiagnosticTitle('Garmin Raw DB Payload');
++                                    setDiagnosticData(cleanObjectOfPostfixes(garminPayload));
++                                  }}
++                                  title="Show raw DB data"
++                                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
++                                >
++                                  <Database className="text-accent hover:scale-110 transition-transform" size={12} />
++                                </button>
++                              )}
+                               {garminId ? (
+                                 <a
+                                   href={`https://connect.garmin.com/modern/activity/${garminId}`}
+diff --git a/src/pages/Settings.jsx b/src/pages/Settings.jsx
+index 48054f9..c1cb2a1 100644
+--- a/src/pages/Settings.jsx
++++ b/src/pages/Settings.jsx
+@@ -1,6 +1,6 @@
+ import React, { useState, useEffect } from 'react';
+ import { createPortal } from 'react-dom';
+-import { Settings as SettingsIcon, Save, Bell, Mail, Info, UserX, AlertTriangle, ChevronRight, Sun, Moon, Activity, Palette, Sliders, Link, Bug, ShieldCheck, Download, Loader2, Trash2, CheckCircle2 } from 'lucide-react';
++import { Settings as SettingsIcon, Save, Bell, Mail, Info, UserX, AlertTriangle, ChevronRight, Sun, Moon, Activity, Palette, Sliders, Link, Bug, ShieldCheck, Download, Loader2, Trash2, CheckCircle2, Briefcase } from 'lucide-react';
+ import { db, functions } from '../firebase';
+ import { doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, limit, writeBatch, onSnapshot } from 'firebase/firestore';
+ import { httpsCallable } from 'firebase/functions';
+@@ -11,6 +11,8 @@ import DeleteAccountModal from '../components/modals/DeleteAccountModal';
+ import ConfirmationModal from '../components/modals/ConfirmationModal';
+ import { checkServerConnection } from '../utils/firestoreHelper';
+ import { reverseGeocodeActivityLocations } from '../utils/geocodeUtils';
++import IntervalsIcon from '../components/icons/IntervalsIcon';
++import StravaIcon from '../components/icons/StravaIcon';
+ 
+ const formatBdrDate = (startTimeUtc, timeZoneSec, fallbackDateStr) => {
+   if (startTimeUtc) {
+@@ -831,7 +833,7 @@ const Settings = () => {
+         {serviceSettings.isIntervalsActive && (
+           <section className="section-card glass p-6">
+             <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+-              <Activity size={22} className="text-primary" /> Register Commute to Work
++              <Briefcase size={22} className="text-primary" /> Register Ride to Work Activity
+             </h2>
+             <button
+               type="button"
+@@ -879,7 +881,7 @@ const Settings = () => {
+                     <div className="flex items-center justify-between flex-wrap gap-4">
+                       <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(198, 40, 40, 0.1)', color: '#c62828' }}>
+-                          <Activity size={20} />
++                          <IntervalsIcon size={20} />
+                         </div>
+                         <div>
+                           <h3 className="font-semibold" style={{ color: '#c62828' }}>Intervals.icu</h3>
+@@ -1050,9 +1052,7 @@ const Settings = () => {
+                 <div className="flex items-center justify-between flex-wrap gap-4 py-2">
+                   <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-full bg-[#fc4c02]/10 flex items-center justify-center">
+-                      <svg viewBox="0 0 24 24" style={{ width: '20px', height: '20px', fill: '#fc4c02' }}>
+-                        <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.379 0 4.82 11.213h4.172" />
+-                      </svg>
++                      <StravaIcon size={20} color="#fc4c02" />
+                     </div>
+                     <div>
+                       <h3 className="font-semibold" style={{ color: '#fc4c02' }}>STRAVA</h3>
+@@ -1150,7 +1150,7 @@ const Settings = () => {
+               >
+                 {/* Header inside the box */}
+                 <div className="flex items-center gap-2 border-b border-white/5 pb-3">
+-                  <Activity size={16} style={{ color: '#c62828' }} />
++                  <IntervalsIcon size={16} style={{ color: '#c62828' }} />
+                   <span className="text-xs font-bold tracking-wider uppercase" style={{ color: '#c62828' }}>Intervals.icu Settings</span>
+                 </div>
+ 
+@@ -1483,8 +1483,9 @@ const Settings = () => {
+                       <span className="slider round"></span>
+                     </label>
+                     <div className="flex flex-wrap items-baseline gap-2">
+-                      <label htmlFor="adminIsIntervalsActive" className="text-white text-sm cursor-pointer select-text">
+-                        Enable Intervals.icu Connection
++                      <label htmlFor="adminIsIntervalsActive" className="text-white text-sm cursor-pointer select-text flex items-center gap-1.5">
++                        <IntervalsIcon size={16} style={{ color: '#c62828' }} />
++                        <span>Enable Intervals.icu Connection</span>
+                       </label>
+                       <span className="text-xs text-muted select-text">(Allow users to connect and sync with Intervals.icu)</span>
+                     </div>
