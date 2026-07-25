@@ -1,0 +1,222 @@
+diff --git a/src/pages/Activities.jsx b/src/pages/Activities.jsx
+index 9102aa6..0d7ef5a 100644
+--- a/src/pages/Activities.jsx
++++ b/src/pages/Activities.jsx
+@@ -461,6 +461,17 @@ const Activities = () => {
+   const isIntervalsGroup = !!currentBike?.intervalsGearId;
+   const currentTrainer = trainers.find(t => t.id === selectedTrainerId);
+   const serviceName = currentBike?.intervalsGearId ? 'Intervals.icu' : (currentBike?.stravaGearId ? 'STRAVA' : 'STRAVA/Intervals.icu');
++  const [serviceSettings, setServiceSettings] = useState({ isIntervalsActive: true, isStravaActive: true });
++
++  useEffect(() => {
++    const servicesRef = doc(db, 'settings', 'services');
++    const unsub = onSnapshot(servicesRef, (snap) => {
++      if (snap.exists()) {
++        setServiceSettings(snap.data());
++      }
++    });
++    return () => unsub();
++  }, []);
+ 
+   // True only when at least one bike has an Intervals.icu gear ID
+   const hasIntervalsBikes = useMemo(() => (bikes || []).some(b => b && !!b.intervalsGearId), [bikes]);
+@@ -1275,12 +1286,17 @@ const Activities = () => {
+ 
+   if (!selectedBikeId && !selectedTrainerId) {
+     const hasActive = activeBikes.length > 0 || activeTrainers.length > 0;
++    const serviceText = (serviceSettings.isIntervalsActive && serviceSettings.isStravaActive)
++      ? 'STRAVA or Intervals.icu'
++      : serviceSettings.isIntervalsActive
++        ? 'Intervals.icu'
++        : 'STRAVA';
+     return (
+       <div className="flex flex-col items-center justify-center p-12 text-center h-[60vh] text-muted">
+         {!hasActive ? (
+           <>
+             <h3 className="text-xl font-bold text-main mb-2">No active bikes or trainers found</h3>
+-            <p className="max-w-md">Please go to the <strong><Link to="/" className="text-accent underline">My Bikes</Link></strong> page to connect STRAVA or Intervals.icu and import your fleet or add a trainer. Note: Retired equipment will not appear here.</p>
++            <p className="max-w-md">Please go to the <strong><Link to="/" className="text-accent underline">My Bikes</Link></strong> page to connect {serviceText} and import your fleet or add a trainer. Note: Retired equipment will not appear here.</p>
+           </>
+         ) : (
+           <>
+@@ -1297,12 +1313,17 @@ const Activities = () => {
+ 
+   if (!selectedBikeId && !selectedTrainerId) {
+     const hasActive = activeBikes.length > 0 || activeTrainers.length > 0;
++    const serviceText = (serviceSettings.isIntervalsActive && serviceSettings.isStravaActive)
++      ? 'STRAVA or Intervals.icu'
++      : serviceSettings.isIntervalsActive
++        ? 'Intervals.icu'
++        : 'STRAVA';
+     return (
+       <div className="flex flex-col items-center justify-center p-12 text-center h-[60vh] text-muted">
+         {!hasActive ? (
+           <>
+             <h3 className="text-xl font-bold text-main mb-2">No active bikes or trainers found</h3>
+-            <p className="max-w-md">Please go to the <strong><Link to="/" className="text-accent underline">My Bikes</Link></strong> page to connect STRAVA or Intervals.icu and import your fleet or add a trainer. Note: Retired equipment will not appear here.</p>
++            <p className="max-w-md">Please go to the <strong><Link to="/" className="text-accent underline">My Bikes</Link></strong> page to connect {serviceText} and import your fleet or add a trainer. Note: Retired equipment will not appear here.</p>
+           </>
+         ) : (
+           <>
+diff --git a/src/pages/History.jsx b/src/pages/History.jsx
+index 27400c1..3a0b30c 100644
+--- a/src/pages/History.jsx
++++ b/src/pages/History.jsx
+@@ -23,6 +23,17 @@ const History = () => {
+   const [insertIdx, setInsertIdx] = useState(null);
+   const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', onConfirm: null, isDelete: false });
+   const [loadingHistory, setLoadingHistory] = useState(true);
++  const [serviceSettings, setServiceSettings] = useState({ isIntervalsActive: true, isStravaActive: true });
++
++  useEffect(() => {
++    const servicesRef = doc(db, 'settings', 'services');
++    const unsub = onSnapshot(servicesRef, (snap) => {
++      if (snap.exists()) {
++        setServiceSettings(snap.data());
++      }
++    });
++    return () => unsub();
++  }, []);
+ 
+   const toLocalISO = (dateStr) => {
+     if (!dateStr) return '';
+@@ -258,12 +269,17 @@ const History = () => {
+   };
+ 
+   if (!selectedBikeId && !selectedTrainerId) {
++    const serviceText = (serviceSettings.isIntervalsActive && serviceSettings.isStravaActive)
++      ? 'STRAVA or Intervals.icu'
++      : serviceSettings.isIntervalsActive
++        ? 'Intervals.icu'
++        : 'STRAVA';
+     return (
+       <div className="flex flex-col items-center justify-center p-12 text-center h-[60vh] text-muted">
+         {activeBikes.length === 0 ? (
+           <>
+             <h3 className="text-xl font-bold text-main mb-2">No active bikes found</h3>
+-            <p className="max-w-md">Please go to the <strong><Link to="/" className="text-accent underline">My Bikes</Link></strong> page to connect STRAVA and import your fleet. Note: Retired bikes will not appear here.</p>
++            <p className="max-w-md">Please go to the <strong><Link to="/" className="text-accent underline">My Bikes</Link></strong> page to connect {serviceText} and import your fleet. Note: Retired bikes will not appear here.</p>
+           </>
+         ) : (
+           <>
+diff --git a/src/pages/ManageParts.jsx b/src/pages/ManageParts.jsx
+index df65d62..a2f3e2e 100644
+--- a/src/pages/ManageParts.jsx
++++ b/src/pages/ManageParts.jsx
+@@ -19,6 +19,17 @@ const ManageParts = () => {
+   const [parts, setParts] = useState([]);
+   const [loadingParts, setLoadingParts] = useState(true);
+   const [isExpanded, setIsExpanded] = useState(false);
++  const [serviceSettings, setServiceSettings] = useState({ isIntervalsActive: true, isStravaActive: true });
++
++  useEffect(() => {
++    const servicesRef = doc(db, 'settings', 'services');
++    const unsub = onSnapshot(servicesRef, (snap) => {
++      if (snap.exists()) {
++        setServiceSettings(snap.data());
++      }
++    });
++    return () => unsub();
++  }, []);
+ 
+   const currentBike = bikes.find(b => b.id === selectedBikeId);
+   const currentTrainer = trainers.find(t => t.id === selectedTrainerId);
+@@ -772,12 +783,17 @@ const ManageParts = () => {
+ 
+   if (!selectedBikeId && !selectedTrainerId) {
+     const hasActive = activeBikes.length > 0 || activeTrainers.length > 0;
++    const serviceText = (serviceSettings.isIntervalsActive && serviceSettings.isStravaActive)
++      ? 'STRAVA or Intervals.icu'
++      : serviceSettings.isIntervalsActive
++        ? 'Intervals.icu'
++        : 'STRAVA';
+     return (
+       <div className="flex flex-col items-center justify-center p-12 text-center h-[60vh] text-muted">
+         {!hasActive ? (
+           <>
+             <h3 className="text-xl font-bold text-main mb-2">No active bikes or trainers found</h3>
+-            <p className="max-w-md">Please go to the <strong><Link to="/" className="text-accent underline">My Bikes</Link></strong> page to connect STRAVA and import your fleet or add a trainer. Note: Retired equipment will not appear here.</p>
++            <p className="max-w-md">Please go to the <strong><Link to="/" className="text-accent underline">My Bikes</Link></strong> page to connect {serviceText} and import your fleet or add a trainer. Note: Retired equipment will not appear here.</p>
+           </>
+         ) : (
+           <>
+diff --git a/src/pages/MyBikes.jsx b/src/pages/MyBikes.jsx
+index 0af548b..ec703a5 100644
+--- a/src/pages/MyBikes.jsx
++++ b/src/pages/MyBikes.jsx
+@@ -1633,7 +1633,11 @@ const MyBikes = () => {
+             {activeBikes.length > 0
+               ? "Please select a bike from the sidebar to view its details, or import more."
+               : (!stravaConnected && !intervalsConnected)
+-                ? "Connect your Intervals.icu or STRAVA account to import your bikes and start tracking."
++                ? (serviceSettings.isIntervalsActive && serviceSettings.isStravaActive)
++                  ? "Connect your Intervals.icu or STRAVA account to import your bikes and start tracking."
++                  : serviceSettings.isIntervalsActive
++                    ? "Connect your Intervals.icu account to import your bikes and start tracking."
++                    : "Connect your STRAVA account to import your bikes and start tracking."
+                 : "Your account is connected! Click 'Import Bikes' to bring your fleet into the app."
+             }
+           </p>
+diff --git a/src/pages/Settings.jsx b/src/pages/Settings.jsx
+index e91aa37..48054f9 100644
+--- a/src/pages/Settings.jsx
++++ b/src/pages/Settings.jsx
+@@ -704,6 +704,12 @@ const Settings = () => {
+   };
+ 
+   const handleServiceToggle = async (key, val) => {
++    if ((key === 'isIntervalsActive' && val === false && !serviceSettings.isStravaActive) ||
++        (key === 'isStravaActive' && val === false && !serviceSettings.isIntervalsActive)) {
++      showToast('At least one service (Intervals.icu or STRAVA) must remain enabled.', 'warning');
++      return;
++    }
++
+     const updated = { ...serviceSettings, [key]: val };
+     setServiceSettings(updated);
+     try {
+@@ -1073,9 +1079,9 @@ const Settings = () => {
+                     <button
+                       type="button"
+                       onClick={connectStrava}
+-                      className="btn-strava flex items-center justify-center"
++                      className="btn-primary"
+                       disabled={saving}
+-                      style={{ ...btnStyle, backgroundColor: '#fc4c02', color: '#fff', border: 'none' }}
++                      style={btnStyle}
+                     >
+                       Connect
+                     </button>
+@@ -1184,7 +1190,16 @@ const Settings = () => {
+ 
+                 {/* Exclude commute activities from notifications (Child of intervalsNewActivityNotify) */}
+                 <div className="flex flex-col gap-3 mt-2" style={{ paddingLeft: '25px' }}>
+-                  <div className="flex items-center gap-3">
++                  <div
++                    className="flex items-center gap-3 cursor-pointer"
++                    style={{ opacity: (!settings.isEnabled || !settings.intervalsNewActivityNotify) ? 0.6 : 1 }}
++                    onClick={(e) => {
++                      if (!settings.isEnabled || !settings.intervalsNewActivityNotify) {
++                        e.preventDefault();
++                        showToast('Please enable "Notify on new Intervals.icu activities" option first.', 'info');
++                      }
++                    }}
++                  >
+                     <input
+                       type="checkbox"
+                       id="intervalsExcludeCommute"
+@@ -1206,12 +1221,12 @@ const Settings = () => {
+                         }
+                       }}
+                       disabled={!settings.isEnabled || !settings.intervalsNewActivityNotify}
+-                      style={{ cursor: (settings.isEnabled && settings.intervalsNewActivityNotify) ? 'pointer' : 'not-allowed' }}
++                      style={{ cursor: 'pointer', pointerEvents: (!settings.isEnabled || !settings.intervalsNewActivityNotify) ? 'none' : 'auto' }}
+                     />
+                     <label
+                       htmlFor={(settings.isEnabled && settings.intervalsNewActivityNotify) ? "intervalsExcludeCommute" : undefined}
+-                      className={`text-sm select-text ${(!settings.isEnabled || !settings.intervalsNewActivityNotify) ? 'text-gray-500' : 'text-white'}`}
+-                      style={{ cursor: (settings.isEnabled && settings.intervalsNewActivityNotify) ? 'pointer' : 'not-allowed' }}
++                      className={`text-sm select-text ${(!settings.isEnabled || !settings.intervalsNewActivityNotify) ? 'text-gray-400' : 'text-white'}`}
++                      style={{ cursor: 'pointer' }}
+                     >
+                       Exclude commute activities from notifications
+                     </label>
